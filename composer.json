@@ -1,0 +1,14 @@
+{
+    "name": "mattgu74/shotgunutc",
+    "type": "project",
+    "description": "Micro-billetterie pour les associations utcéenne.",
+    "autoload": {
+        "psr-0": { "Shotgunutc": "src/" }
+    },
+    "require": {
+        "slim/slim": "2.*",
+        "nategood/httpful": "*",
+        "ginger/client": "*",
+        "payutc/php-client": "dev-master"
+    }
+}
