@@ -19,18 +19,66 @@
  */
 
 require 'vendor/autoload.php';
+use Shotgunutc\Desc;
+use Shotgunutc\Config;
+use Shotgunutc\Cas;
+use \Ginger\Client\GingerClient;
+use \Payutc\Client\AutoJsonClient;
+use \Payutc\Client\JsonException;
+
+// Settings for cookies
+$sessionPath = parse_url(Config::get('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"), PHP_URL_PATH);
+session_set_cookie_params(0, $sessionPath);
+session_start();
+
+try {
+    Config::init();
+} catch(\Exception $e) {
+    Config::$conf = Array();
+    // Set the only one forced config line, that we have to change manually.
+    Config::set('payutc_server', "https://assos.utc.fr/payutc_dev/server");
+    Config::set('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+    Config::set('title', "ShotgunUTC");
+}
+
+// get payutcClient
+$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "KEY", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
 
 $app = new \Slim\Slim();
 
+$app->hook('slim.before', function () use ($app) {
+    // check that system is installed
+    if(!Config::isInstalled()) {
+        $app->flashNow('info', 'This application is not yet configured, please click <a href="install" >here</a> !');
+    }
+});
+
 // Set default data for view
 $app->view->setData(array(
-    'color' => 'red',
-    'size' => 'medium'
+    'title' => Config::get('title', 'ShotgunUTC')
 ));
 
 // Welcome page, list all current Shotguns
 $app->get('/', function() use($app) {
-    $app->render('index.php', array());
+	$app->redirect('index');
+});
+$app->get('/index', function() use($app) {
+	$app->render('header.php', array(
+    	"active" => "index"
+    	));
+    $app->render('index.php', array(
+    	"shotguns" => Desc::getAll()
+    	));
+    $app->render('footer.php');
+});
+
+// About page, list all current Shotguns
+$app->get('/about', function() use($app) {
+	$app->render('header.php', array(
+    	"active" => "about"
+    	));
+    $app->render('about.php', array());
+    $app->render('footer.php');
 });
 
 // Show a specific shotgun page
@@ -43,9 +91,121 @@ $app->get('/admin', function() use($app) {
     $app->render('admin.php', array());
 });
 
-// Install process
-$app->get('/install', function() use($app) {
-    $app->render('install.php', array());
+// Connection standard (not payutc)
+$app->get('/login', function() use($app, $payutcClient) {
+    if(empty($_GET["ticket"])) {
+        $service = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"; 
+        $_SESSION['service'] = $service;
+        $casUrl = $payutcClient->getCasUrl()."login?service=".urlencode($service);
+        $app->response->redirect($casUrl, 303);
+    } else {
+        $cas = new Cas($payutcClient->getCasUrl());
+        $user = $cas->authenticate($_GET["ticket"], $_SESSION['service']);
+        $_SESSION['payutc_cookie'] = $payutcClient->cookie;
+        $_SESSION['username'] = $user;
+        $app->response->redirect(isset($_GET['goto']) ? $_GET['goto'] : "index", 303);
+    }
+});
+
+// Connection via payutc
+$app->get('/loginpayutc', function() use($app, $payutcClient) {
+    if(empty($_GET["ticket"])) {
+        $service = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"; 
+        $_SESSION['service'] = $service;
+        $casUrl = $payutcClient->getCasUrl()."login?service=".urlencode($service);
+        $app->response->redirect($casUrl, 303);
+    } else {
+        $user = $payutcClient->loginCas(array("ticket" => $_GET["ticket"], "service" => $_SESSION['service']));
+        $_SESSION['payutc_cookie'] = $payutcClient->cookie;
+        $_SESSION['username'] = $user;
+        $app->response->redirect($_GET['goto'], 303);
+    }
+});
+
+// Deconnexion
+$app->get('/logout', function() use($app, $payutcClient) {
+    $status = $payutcClient->getStatus();
+    if($status->user) {
+        $payutcClient->logout();
+    }
+    if(isset($_SESSION['username']) || $status->user) {
+        $service = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"; 
+        $casUrl = $payutcClient->getCasUrl()."logout?url=".urlencode($service);
+        session_destroy();
+        $app->response->redirect($service, 303);    
+    } else {
+        $app->response->redirect(isset($_GET['goto']) ? $_GET['goto'] : "index", 303);
+    }
+
+});
+
+// Install options
+$app->get('/install', function() use($app, $payutcClient) {
+    // Remove flash (we are on the good page to install/configure system)
+    $app->flashNow('info', null);
+
+    $status = $payutcClient->getStatus();
+    $admin = false;
+    if($status->user) {
+        try {
+            $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
+            $admin = true;
+        } catch(JsonException $e) {
+            $admin = false;
+        }
+    }
+
+	$app->render('header.php', array());
+    if($admin) {
+        $app->render('install.php', array());
+    } else {
+        $app->render('install_not_admin.php', array(
+            "status" => $status,
+            "debug" => $payutcClient->cookie));
+    }
+
+    $app->render('footer.php');
+});
+
+// Install options
+$app->post('/install', function() use($app, $payutcClient) {
+    $status = $payutcClient->getStatus();
+    $admin = false;
+    if($status->user) {
+        try {
+            $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
+            $admin = true;
+        } catch(JsonException $e) {
+            $admin = false;
+        }
+    }
+
+    if($admin) {
+        foreach(Config::$default as $item) {
+            Config::set($item[0], $_POST[$item[0]]);
+        }
+    }
+
+    $app->redirect('install');
+});
+
+// Declare payutc app
+$app->get('/installpayutc', function() use($app, $payutcClient) {
+    $status = $payutcClient->getStatus();
+    $admin = false;
+    if($status->user) {
+        try {
+            $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
+            $app = $payutcClient->registerApplication(
+                array(
+                    "app_url"  =>Config::get('self_url'), 
+                    "app_name" =>Config::get('title')." déclaré par {$_SESSION['username']}", 
+                    "app_desc" =>"Microbilletterie"));
+            Config::set('payutc_key', $app->app_key);
+        } catch(JsonException $e) {
+        }
+    }
+    $app->response->redirect("install", 303);
 });
 
 $app->run();

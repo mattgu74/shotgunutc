@@ -1,4 +1,23 @@
 <?php
+/*
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <matthieu@guffroy.com> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return Matthieu Guffroy
+ * ----------------------------------------------------------------------------
+ */
+
+ /*
+ * ----------------------------------------------------------------------------
+ * "LICENCE BEERWARE" (Révision 42):
+ * <matthieu@guffroy.com> a créé ce fichier. Tant que vous conservez cet avertissement,
+ * vous pouvez faire ce que vous voulez de ce truc. Si on se rencontre un jour et
+ * que vous pensez que ce truc vaut le coup, vous pouvez me payer une bière en
+ * retour. Matthieu Guffroy
+ * ----------------------------------------------------------------------------
+ */
+
 namespace Shotgunutc;
 use \Shotgunutc\Db;
 use \Shotgunutc\Config;
@@ -16,6 +35,7 @@ class Desc {
     protected $fin;
     protected $payutc_fun_id;
     protected $payutc_cat_id;
+    protected $creator;
 
     public function __construct($id=null) {
         if(!empty($id)) {
@@ -34,6 +54,7 @@ class Desc {
 
     /*
         Propagate modification into database.
+        Some fields, like $creator, $payutc_fun_id and $payutc_cat_id are volunterely not updatable.
     */
     public function update() {
 
@@ -58,6 +79,20 @@ class Desc {
 
         // bind data
         $data = $query->fetch();
+        $this->bind($data);
+    }
+
+    /*
+        Return all the registered shotguns
+    */
+    public static function getAll() {
+        return Array();
+    }
+
+    /*
+        Fill local attributes with data from query
+    */
+    protected function bind($data) {
         $this->id = $data["desc_id"];
         $this->titre = $data["desc_titre"];
         $this->desc = $data["desc_desc"];
