@@ -1,16 +1,10 @@
-    <div class="row marketing">
-    <div class="col-lg-6">
-      <h4>Navette Gala UTT</h4>
-      <p>Le BDE organise 150 places pour aller au gala UTT. Premier arrivée, premier servi !</p>
-
-      <h4>SkiUTC</h4>
-      <p>400 Places à saisir !</p>
-    </div>
-    <div class="col-lg-6">
-      <h4>Navette Gala UTT</h4>
-      <p>Le BDE organise 150 places pour aller au gala UTT. Premier arrivée, premier servi !</p>
-
-      <h4>SkiUTC</h4>
-      <p>400 Places à saisir !</p>
-    </div>
-    </div>
+<div class="row">
+  <div class="col-lg-12">
+    <h2>A propos</h2>
+    <br />
+    ShotgunUTC est une micro-billetterie. <br />
+    Le projet est open-source et accepte très volontiers les suggestions sous formes "d'issues" ou de "pull-request" sur <a href="https://github.com/mattgu74/shotgunutc" >github. </a>
+    <br />
+    <br />
+  </div>
+</div>

@@ -132,7 +132,7 @@ $app->get('/logout', function() use($app, $payutcClient) {
         $service = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"; 
         $casUrl = $payutcClient->getCasUrl()."logout?url=".urlencode($service);
         session_destroy();
-        $app->response->redirect($service, 303);    
+        $app->response->redirect($casUrl, 303);    
     } else {
         $app->response->redirect(isset($_GET['goto']) ? $_GET['goto'] : "index", 303);
     }

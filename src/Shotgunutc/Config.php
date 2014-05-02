@@ -30,6 +30,12 @@ class Config {
 		// [0]: key, [1]: label
 		array("title","Titre du site"),
 		array("self_url","URL de ce site (utilisé pour les cookies)"),
+		array("db_host","DB host"),
+		array("db_login","DB login"),
+		array("db_password","DB password"),
+		array("db_name","DB name"),
+		array("db_pref","DB prefix"),
+		array("self_url","URL de ce site (utilisé pour les cookies)"),
 		array("payutc_server","URL payutc server"),
 		array("payutc_key","clef d'application payutc"),
 		array("ginger_server","URL ginger server"),
