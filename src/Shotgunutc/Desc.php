@@ -26,6 +26,8 @@ use \Shotgunutc\Config;
     This class represent a shotgun Description, all parameters needed for each event.
 */
 class Desc {
+    static protected $table_name = Config::get("db_prefix", "shotgun_")."desc";
+
     protected $id=null;
     protected $titre;
     protected $desc;
@@ -69,7 +71,7 @@ class Desc {
         }
 
         // Query database 
-        $query = Db::prepare("SELECT * FROM ".Config::get("db_prefix", "shotgun_")."desc where desc_id = :id");
+        $query = Db::prepare("SELECT * FROM ".self::$table_name." where desc_id = :id");
         $query->bindParam(':id', $id, \PDO::PARAM_INT);
 	$query->execute();
 
@@ -105,9 +107,21 @@ class Desc {
     }
 
     /*
-        Create the database
+        Return create query
     */
     public static function install() {
-
+        $query = "CREATE TABLE IF NOT EXISTS `".self::$table_name."` (
+              `desc_id` int(4) NOT NULL AUTO_INCREMENT,
+              `desc_titre` varchar(50) NOT NULL,
+              `desc_desc` varchar(250) NOT NULL,
+              `desc_is_public` int(1) NOT NULL,
+              `desc_open_non_cotisant` int(1) NOT NULL,
+              `desc_debut` datetime NOT NULL,
+              `desc_fin` datetime NOT NULL,
+              `payutc_fun_id` int(4) NOT NULL,
+              `payutc_cat_id` int(4) NOT NULL,
+              PRIMARY KEY (`desc_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";
+        return $query;
     }
 }

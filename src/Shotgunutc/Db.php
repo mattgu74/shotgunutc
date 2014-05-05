@@ -1,5 +1,4 @@
 <?php
-
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):
@@ -18,3 +17,50 @@
  * retour. Matthieu Guffroy
  * ----------------------------------------------------------------------------
  */
+
+namespace Shotgunutc;
+use \Shotgunutc\Config;
+
+class Db
+{
+    private static $config = null;
+    private static $conn = null;
+
+    public static function createQueryBuilder()
+    {
+        return static::conn()->createQueryBuilder();
+    }
+    
+    public static function conn()
+    {
+        if (static::$conn === null) {
+            static::$config = new \Doctrine\DBAL\Configuration();
+            $connectionParams = array(
+                'host' 	   => Config::get('db_host'),
+                'driver'   => 'pdo_mysql',
+                'user'     => Config::get('db_login'),
+                'password' => Config::get('db_password'),
+                'dbname'   => Config::get('db_name'),
+                'charset'  => 'utf8'
+            );
+            static::$conn = \Doctrine\DBAL\DriverManager::getConnection($connectionParams, static::$config);
+            static::$conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+        }
+        return static::$conn;
+    }
+    
+    public static function beginTransaction()
+    {
+        static::$conn->beginTransaction();
+    }
+    
+    public static function commit()
+    {
+        static::conn()->commit();
+    }
+    
+    public static function rollback()
+    {
+        static::conn()->rollback();
+    }
+}

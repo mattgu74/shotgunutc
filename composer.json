@@ -9,6 +9,7 @@
         "slim/slim": "2.*",
         "nategood/httpful": "*",
         "ginger/client": "*",
-        "payutc/php-client": "dev-master"
+        "payutc/php-client": "dev-master",
+        "doctrine/dbal": "2.*"
     }
 }

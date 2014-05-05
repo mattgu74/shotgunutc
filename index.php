@@ -42,7 +42,22 @@ try {
 }
 
 // get payutcClient
-$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "KEY", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+
+$status = $payutcClient->getStatus();
+$admin = false;
+if($status->user) {
+    try {
+        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
+        $admin = true;
+    } catch(JsonException $e) {
+        $admin = false;
+    }
+}
+
+if(!$status->application && Config::get('payutc_key', false)) {
+    $payutcClient->loginApp(array("key" => Config::get('payutc_key')));
+} 
 
 $app = new \Slim\Slim();
 
@@ -60,23 +75,23 @@ $app->view->setData(array(
 
 // Welcome page, list all current Shotguns
 $app->get('/', function() use($app) {
-	$app->redirect('index');
+    $app->redirect('index');
 });
 $app->get('/index', function() use($app) {
-	$app->render('header.php', array(
-    	"active" => "index"
-    	));
+    $app->render('header.php', array(
+        "active" => "index"
+        ));
     $app->render('index.php', array(
-    	"shotguns" => Desc::getAll()
-    	));
+        "shotguns" => Desc::getAll()
+        ));
     $app->render('footer.php');
 });
 
 // About page, list all current Shotguns
 $app->get('/about', function() use($app) {
-	$app->render('header.php', array(
-    	"active" => "about"
-    	));
+    $app->render('header.php', array(
+        "active" => "about"
+        ));
     $app->render('about.php', array());
     $app->render('footer.php');
 });
@@ -87,8 +102,26 @@ $app->get('/shotgun/:id', function() use($app) {
 });
 
 // Admin panel, welcome page
-$app->get('/admin', function() use($app) {
-    $app->render('admin.php', array());
+$app->get('/admin', function() use($app, $admin, $status) {
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    if(!$status->user) {
+        $app->redirect("loginpayutc?goto=admin");
+    }
+    if(!$admin) { 
+        $app->flash('info', 'Il faut se connecter pour accèder à l\'administration ! ');
+        $app->redirect("index");
+    }
+    $fundations = $payutcClient->getFundations();
+    if(count($fundations) == 0) {
+        $app->flash('info', 'Vous n\'avez pas de droits pour créer ou administrer un shotgun. Si vous souhaitez utiliser cet outil, contactez payutc@assos.utc.fr');
+        $app->redirect("index");
+    }
+
+    $app->render('header.php', array());
+    $app->render('admin.php', array(
+        "fundations" => $fundations
+        ));
+    $app->render('footer.php');
 });
 
 // Connection standard (not payutc)
@@ -136,26 +169,13 @@ $app->get('/logout', function() use($app, $payutcClient) {
     } else {
         $app->response->redirect(isset($_GET['goto']) ? $_GET['goto'] : "index", 303);
     }
-
 });
 
 // Install options
-$app->get('/install', function() use($app, $payutcClient) {
+$app->get('/install', function() use($app, $payutcClient, $admin, $status) {
     // Remove flash (we are on the good page to install/configure system)
     $app->flashNow('info', null);
-
-    $status = $payutcClient->getStatus();
-    $admin = false;
-    if($status->user) {
-        try {
-            $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
-            $admin = true;
-        } catch(JsonException $e) {
-            $admin = false;
-        }
-    }
-
-	$app->render('header.php', array());
+    $app->render('header.php', array());
     if($admin) {
         $app->render('install.php', array());
     } else {
@@ -163,47 +183,29 @@ $app->get('/install', function() use($app, $payutcClient) {
             "status" => $status,
             "debug" => $payutcClient->cookie));
     }
-
     $app->render('footer.php');
 });
 
 // Install options
-$app->post('/install', function() use($app, $payutcClient) {
-    $status = $payutcClient->getStatus();
-    $admin = false;
-    if($status->user) {
-        try {
-            $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
-            $admin = true;
-        } catch(JsonException $e) {
-            $admin = false;
-        }
-    }
-
+$app->post('/install', function() use($app, $payutcClient, $admin) {
     if($admin) {
         foreach(Config::$default as $item) {
             Config::set($item[0], $_POST[$item[0]]);
         }
     }
-
     $app->redirect('install');
 });
 
 // Declare payutc app
-$app->get('/installpayutc', function() use($app, $payutcClient) {
-    $status = $payutcClient->getStatus();
-    $admin = false;
-    if($status->user) {
-        try {
-            $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
-            $app = $payutcClient->registerApplication(
-                array(
-                    "app_url"  =>Config::get('self_url'), 
-                    "app_name" =>Config::get('title')." déclaré par {$_SESSION['username']}", 
-                    "app_desc" =>"Microbilletterie"));
-            Config::set('payutc_key', $app->app_key);
-        } catch(JsonException $e) {
-        }
+$app->get('/installpayutc', function() use($app, $payutcClient, $admin) {
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "KEY", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    if($admin) {
+        $app = $payutcClient->registerApplication(
+            array(
+                "app_url"  =>Config::get('self_url'), 
+                "app_name" =>Config::get('title')." déclaré par {$_SESSION['username']}", 
+                "app_desc" =>"Microbilletterie"));
+        Config::set('payutc_key', $app->app_key);
     }
     $app->response->redirect("install", 303);
 });
