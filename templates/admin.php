@@ -15,7 +15,13 @@
             <a href="createshotgun?fun_id=<?php echo $fun->fun_id; ?>" class="btn btn-primary pull-right">Créer un shotgun</a>
             <h4><?php echo $fun->name; ?></h4>
             <ul>
-                <li>Test</li>
+            <?php $c = 0; foreach($shotguns as $shotgun) { 
+                if($shotgun->payutc_fun_id == $fun->fun_id) { 
+                    $c += 1; ?>
+                <li><a href="adminshotgun?id=<?php echo $shotgun->id; ?>"><?php echo $shotgun->titre; ?></a></li>
+            <?php } } if($c==0) { ?>
+                <li>Aucun shotgun crée pour l'instant !</li>
+            <?php } ?>
             </ul>
             <br /><br />
         <?php endif; ?>

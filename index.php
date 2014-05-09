@@ -73,6 +73,10 @@ $app->view->setData(array(
     'title' => Config::get('title', 'ShotgunUTC')
 ));
 
+/*
+    PUBLIC ZONE
+*/
+
 // Welcome page, list all current Shotguns
 $app->get('/', function() use($app) {
     $app->redirect('index');
@@ -101,15 +105,76 @@ $app->get('/shotgun/:id', function() use($app) {
     $app->render('shotgun.php', array());
 });
 
+/*
+    ADMIN ZONE
+*/
+
+$app->get('/createshotgun', function() use($app, $admin, $status) {
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    if(!isset($_GET["fun_id"])) {
+        $app->redirect("admin");
+    } else {
+        $fun_id = $_GET["fun_id"];
+    }  
+    try {
+        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
+    } catch(JsonException $e) {
+        $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
+        $app->redirect("admin");
+    }
+    $desc = new Desc();
+    $form = $desc->getForm("Création d'un shotgun", "createshotgun?fun_id=".$fun_id, "Créer");
+    $app->render('header.php', array());
+    $app->render('form.php', array(
+        "form" => $form
+    ));
+    $app->render('footer.php');
+});
+
+$app->post('/createshotgun', function() use($app, $admin, $status) {
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    if(!isset($_GET["fun_id"])) {
+        $app->redirect("admin");
+    } else {
+        $fun_id = $_GET["fun_id"];
+    }  
+    try {
+        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
+    } catch(JsonException $e) {
+        $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
+        $app->redirect("admin");
+    }
+    $desc = new Desc();
+    $form = $desc->getForm("Création d'un shotgun", "createshotgun?fun_id=".$fun_id, "Créer");
+    $form->load();
+    try {
+        // Création de la catégorie dans payutc (celle ou on rentrera les articles)
+        $ret = $payutcClient->setCategory(array(
+            "name" => $desc->titre, 
+            "parent_id" => null, 
+            "fun_id" => $fun_id));
+        if(isset($ret->success)) {
+            $desc->payutc_fun_id = $fun_id;
+            $desc->payutc_cat_id = $ret->success;
+        }
+        $id = $desc->insert();
+    } catch (\Exception $e) {
+        $app->flashNow('info', "Une erreur est survenu, la création du shotgun à échoué. => {$e->getMessage()}");
+        $app->render('header.php', array());
+        $app->render('form.php', array(
+            "form" => $form
+        ));
+        $app->render('footer.php');
+        return;
+    }
+    $app->redirect("adminshotgun?id=".$id);
+});
+
 // Admin panel, welcome page
 $app->get('/admin', function() use($app, $admin, $status) {
     $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!$status->user) {
         $app->redirect("loginpayutc?goto=admin");
-    }
-    if(!$admin) { 
-        $app->flash('info', 'Il faut se connecter pour accèder à l\'administration ! ');
-        $app->redirect("index");
     }
     $fundations = $payutcClient->getFundations();
     if(count($fundations) == 0) {
@@ -119,10 +184,17 @@ $app->get('/admin', function() use($app, $admin, $status) {
 
     $app->render('header.php', array());
     $app->render('admin.php', array(
-        "fundations" => $fundations
+        "fundations" => $fundations,
+        "shotguns" => Desc::getAll(),
         ));
     $app->render('footer.php');
 });
+
+
+
+/*
+    Login/Logout method
+*/
 
 // Connection standard (not payutc)
 $app->get('/login', function() use($app, $payutcClient) {
@@ -170,6 +242,10 @@ $app->get('/logout', function() use($app, $payutcClient) {
         $app->response->redirect(isset($_GET['goto']) ? $_GET['goto'] : "index", 303);
     }
 });
+
+/*
+    Installation/Configuration zone
+*/
 
 // Install options
 $app->get('/install', function() use($app, $payutcClient, $admin, $status) {

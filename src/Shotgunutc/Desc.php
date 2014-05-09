@@ -21,37 +21,70 @@
 namespace Shotgunutc;
 use \Shotgunutc\Db;
 use \Shotgunutc\Config;
+use \Shotgunutc\Form;
+use \Shotgunutc\Field;
+use \Shotgunutc\BoolField;
 
 /*
     This class represent a shotgun Description, all parameters needed for each event.
 */
 class Desc {
-    static protected $table_name = Config::get("db_prefix", "shotgun_")."desc";
+    protected $table_name;
 
-    protected $id=null;
-    protected $titre;
-    protected $desc;
-    protected $is_public;
-    protected $open_non_cotisant;
-    protected $debut;
-    protected $fin;
-    protected $payutc_fun_id;
-    protected $payutc_cat_id;
-    protected $creator;
+    public $id=null;
+    public $titre;
+    public $desc;
+    public $is_public;
+    public $open_non_cotisant;
+    public $debut;
+    public $fin;
+    public $payutc_fun_id;
+    public $payutc_cat_id;
 
     public function __construct($id=null) {
         if(!empty($id)) {
             $this->select($id);
         }
+        $this->table_name = Config::get("db_pref", "shotgun_")."desc";
+        // On préécrit des dates pour donner l'exemple du format de date.
+        $this->debut = date("Y-m-d H:i:s");
+        $this->fin = date("Y-m-d H:i:s");
+    }
+
+    public function getForm($title, $action, $submit) {
+        $form = new Form();
+        $form->title = $title;
+        $form->action = $action;
+        $form->submit = $submit;
+        $form->addItem(new Field("Titre", "titre", $this->titre, "Titre du shotgun"));
+        $form->addItem(new Field("Description", "desc", $this->desc, "Description du shotgun"));
+        $form->addItem(new BoolField("Evenement public", "is_public", $this->is_public, "Indique si l'événement est publiquement afficher sur le site de shotgunutc."));
+        $form->addItem(new BoolField("Ouvert au non cotisant", "open_non_cotisant", $this->open_non_cotisant, "Est-ce que l'événement est ouvert au non cotisant ?"));
+        $form->addItem(new Field("Debut", "debut", $this->debut, "Debut du shotgun", "datetime"));
+        $form->addItem(new Field("Fin", "fin", $this->fin, "Fin du shotgun", "datetime"));
+        return $form;
     }
 
     /*
         Insert the current object into database.
     */
     public function insert() {
-        if($this->id === null) {
-            throw new \Exception("Cannot insert this Desc, please use update() !");
+        if($this->id !== null) {
+            throw new \Exception("Cannot insert this Desc, please use update() ! ({$this->id})");
         }
+        $conn = Db::conn();
+        $conn->insert($this->table_name,
+            array(
+                "desc_titre" => $this->titre,
+                "desc_desc" => $this->desc,
+                "desc_is_public" => $this->is_public,
+                "desc_open_non_cotisant" => $this->open_non_cotisant,
+                "desc_debut" => $this->debut,
+                "desc_fin" => $this->fin,
+                "payutc_fun_id" => $this->payutc_fun_id, 
+                "payutc_cat_id" => $this->payutc_cat_id
+            ));
+        return $conn->lastInsertId();
     }
 
     /*
@@ -62,6 +95,13 @@ class Desc {
 
     }
 
+    protected static function getQbBase() {
+        $qb = Db::createQueryBuilder();
+        $qb->select('*')
+           ->from(Config::get("db_pref", "shotgun_")."desc", "d");
+        return $qb;
+    }
+
     /*
         Select a specific desc ID from database
     */
@@ -70,25 +110,30 @@ class Desc {
             $id=$this->id;
         }
 
-        // Query database 
-        $query = Db::prepare("SELECT * FROM ".self::$table_name." where desc_id = :id");
-        $query->bindParam(':id', $id, \PDO::PARAM_INT);
-	$query->execute();
+        $qb = self::getQbBase();
+        $qb->where('d.desc_id = :desc_id')
+            ->setParameter('desc_id', $id);
 
-        if($query->rowCount() != 1) {
-            throw new \Exception("Select Desc ($id) doesn't return 1 element.");
-        }
-
-        // bind data
-        $data = $query->fetch();
+        $data = $qb->execute()->fetch();
         $this->bind($data);
     }
 
     /*
         Return all the registered shotguns
     */
-    public static function getAll() {
-        return Array();
+    public static function getAll($fun_id = null) {
+        $qb = self::getQbBase();
+        if($fun_id) {
+            $qb->where('d.payutc_fun_id = :fun_id')
+                ->setParameter('fun_id', $fun_id);
+        }
+        $ret = Array();
+        foreach($qb->execute()->fetchAll() as $data) {
+            $desc = new Desc();
+            $desc->bind($data);
+            $ret[] = $desc;
+        }
+        return $ret;
     }
 
     /*
@@ -110,7 +155,7 @@ class Desc {
         Return create query
     */
     public static function install() {
-        $query = "CREATE TABLE IF NOT EXISTS `".self::$table_name."` (
+        $query = "CREATE TABLE IF NOT EXISTS `".Config::get("db_pref", "shotgun_")."desc` (
               `desc_id` int(4) NOT NULL AUTO_INCREMENT,
               `desc_titre` varchar(50) NOT NULL,
               `desc_desc` varchar(250) NOT NULL,

@@ -7,8 +7,9 @@
 <div class="row marketing">
 <div class="col-lg-12">
   <?php foreach($shotguns as $shotgun): ?>
-  <h4>Navette Gala UTT</h4>
-  <p>Le BDE organise 150 places pour aller au gala UTT. Premier arrivée, premier servi !</p>
+  <h4><?php echo $shotgun->titre; ?></h4>
+  Ouverture des ventes dans: XX minutes XX secondes. <br />
+  <?php echo $shotgun->desc; ?>
 
   <?php endforeach; ?>
   <?php if(count($shotguns) == 0): ?>
