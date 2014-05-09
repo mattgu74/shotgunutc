@@ -283,7 +283,7 @@ $app->get('/installpayutc', function() use($app, $payutcClient, $admin) {
                 "app_desc" =>"Microbilletterie"));
         Config::set('payutc_key', $app->app_key);
     }
-    $app->redirect("install", 303);
+    $app->redirect("install");
 });
 
 $app->run();
