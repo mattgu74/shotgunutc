@@ -65,6 +65,10 @@ class Desc {
         return $form;
     }
 
+    public function getChoices() {
+        return Array();
+    }
+
     /*
         Insert the current object into database.
     */
