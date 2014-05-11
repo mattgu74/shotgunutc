@@ -250,13 +250,14 @@ $app->get('/adminshotgun', function() use($app, $status) {
     $app->render('footer.php');
 });
 
-$app->get('/addchoice', function() use($app, $status) {
+$app->get('/choiceform', function() use($app, $status) {
     $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
     } else {
         $id = $_GET["id"];
     }
+
     $desc = new Desc();
     $desc->select($id);
     try {
@@ -265,8 +266,16 @@ $app->get('/addchoice', function() use($app, $status) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
     }
-    $choice = new Choice($id);
-    $form = $choice->getForm("Création d'un choix", "addchoice?id=".$id, "Ajouter");
+
+    if(isset($_GET["choice_id"])) {
+        $choice_id = $_GET["choice_id"];
+        $choice = new Choice($id);
+        $choice->select($choice_id);
+        $form = $choice->getForm("Modification d'un choix", "choiceform?id=".$id."&choice_id=".$choice_id, "Modifier");
+    } else {
+        $choice = new Choice($id);
+        $form = $choice->getForm("Création d'un choix", "choiceform?id=".$id, "Ajouter");
+    }
     $app->render('header.php', array());
     $app->render('form.php', array(
         "form" => $form
@@ -274,7 +283,7 @@ $app->get('/addchoice', function() use($app, $status) {
     $app->render('footer.php');
 });
 
-$app->post('/addchoice', function() use($app, $admin, $status) {
+$app->post('/choiceform', function() use($app, $admin, $status) {
     $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
@@ -289,31 +298,50 @@ $app->post('/addchoice', function() use($app, $admin, $status) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
     }
-    $choice = new Choice($id);
-    $form = $choice->getForm("Création d'un choix", "addchoice?id=".$id, "Ajouter");
-    $form->load();
-    try {
-        // Création de l'article dans payutc
-        $ret = $payutcClient->setProduct(array(
-            "name" => $desc->titre." ".$choice->name, 
-            "parent" =>  $desc->payutc_cat_id,
-            "prix" => $choice->price,
-            "stock" => $choice->stock,
-            "alcool" => 0,
-            "image" => null,
-            "fun_id" => $desc->payutc_fun_id));
-        if(isset($ret->success)) {
-            $choice->payutc_art_id = $ret->success;
+
+    if(isset($_GET["choice_id"])) {
+        $choice_id = $_GET["choice_id"];
+        $choice = new Choice($id);
+        $choice->select($choice_id);
+        $form = $choice->getForm("Modification d'un choix", "choiceform?id=".$id."&choice_id=".$choice_id, "Modifier");
+        $form->load();
+        $payutcClient->setProduct(array(
+                "obj_id" => $choice->payutc_art_id,
+                "name" => $desc->titre." ".$choice->name, 
+                "parent" =>  $desc->payutc_cat_id,
+                "prix" => $choice->price,
+                "stock" => $choice->stock,
+                "alcool" => 0,
+                "image" => null,
+                "fun_id" => $desc->payutc_fun_id));
+        $choice->update();
+    } else {
+        $choice = new Choice($id);
+        $form = $choice->getForm("Création d'un choix", "addchoice?id=".$id, "Ajouter");
+        $form->load();
+        try {
+            // Création de l'article dans payutc
+            $ret = $payutcClient->setProduct(array(
+                "name" => $desc->titre." ".$choice->name, 
+                "parent" =>  $desc->payutc_cat_id,
+                "prix" => $choice->price,
+                "stock" => $choice->stock,
+                "alcool" => 0,
+                "image" => null,
+                "fun_id" => $desc->payutc_fun_id));
+            if(isset($ret->success)) {
+                $choice->payutc_art_id = $ret->success;
+            }
+            $choice->insert();
+        } catch (\Exception $e) {
+            $app->flashNow('info', "Une erreur est survenu, la création du choix à échoué. => {$e->getMessage()}");
+            $app->render('header.php', array());
+            $app->render('form.php', array(
+                "form" => $form
+            ));
+            $app->render('footer.php');
+            return;
         }
-        $choice->insert();
-    } catch (\Exception $e) {
-        $app->flashNow('info', "Une erreur est survenu, la création du choix à échoué. => {$e->getMessage()}");
-        $app->render('header.php', array());
-        $app->render('form.php', array(
-            "form" => $form
-        ));
-        $app->render('footer.php');
-        return;
     }
     $app->redirect("adminshotgun?id=".$id);
 });

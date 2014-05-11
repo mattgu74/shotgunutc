@@ -130,6 +130,21 @@ class Choice {
         $this->bind($data);
     }
 
+    public function update() {
+        $qb = Db::createQueryBuilder();
+        $qb->update(Config::get("db_pref", "shotgun_")."choice", 'c')
+            ->set('c.choice_name', ':name')
+            ->setParameter('name', $this->name)
+            ->set('c.choice_price', ':price')
+            ->setParameter('price', $this->price)
+            ->set('c.choice_stock', ':stock')
+            ->setParameter('stock', $this->stock);
+
+        $qb->where('c.choice_id = :choice_id')
+            ->setParameter('choice_id', $this->id);
+        $qb->execute();
+    }
+
     /*
         Return all the registered shotguns
     */
@@ -176,9 +191,9 @@ class Choice {
         }
 
         // Check always open
-        $debut = new DateTime($desc->debut);
-        $fin = new DateTime($desc->fin);
-        $now = new DateTime("NOW");
+        $debut = new \DateTime($desc->debut);
+        $fin = new \DateTime($desc->fin);
+        $now = new \DateTime("NOW");
         $diff = $now->diff($debut);
         if($diff->invert) {
             if($now->diff($fin)->invert) {

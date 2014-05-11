@@ -14,7 +14,7 @@
     <strong>Ouverture des ventes : </strong><?php echo $shotgun->debut; ?><br />
     <strong>Fermeture des ventes : </strong><?php echo $shotgun->fin; ?><br />
 
-    <a class="btn btn-primary pull-right" href="addchoice?id=<?php echo $shotgun->id; ?>" >Ajouter</a>
+    <a class="btn btn-primary pull-right" href="choiceform?id=<?php echo $shotgun->id; ?>" >Ajouter</a>
     <h2>Choix</h2>
     <table class="table">
         <thead>
@@ -34,7 +34,7 @@
                 <td><?php echo $choice->getNbPlace('W'); ?></td>
                 <td><?php echo $choice->getNbPlace('A'); ?></td>
                 <td><?php echo $choice->getNbPlace('T'); ?></td>
-                <td><a href="editchoice?id=<?php echo $shotgun->id; ?>&choice_id=<?php echo $choice->id; ?>" class="btn btn-primary disabled">Modifier</a></td>
+                <td><a href="choiceform?id=<?php echo $shotgun->id; ?>&choice_id=<?php echo $choice->id; ?>" class="btn btn-primary">Modifier</a></td>
             </tr>
         <?php } ?>
     </table>
