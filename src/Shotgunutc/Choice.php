@@ -180,7 +180,7 @@ class Choice {
             "items" => json_encode(array(array($this->payutc_art_id, 1))),
             "fun_id" => $desc->payutc_fun_id,
             "mail" => $user->mail,
-            "return_url" => Config::get("self_url"),
+            "return_url" => Config::get("self_url")."shotgun?id=".$desc->id,
             "callback_url" => Config::get("self_url")."callback"
         ));
 
