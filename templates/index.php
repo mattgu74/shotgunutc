@@ -8,7 +8,7 @@
 <div class="col-lg-12">
   <?php $i = 0; foreach($shotguns as $shotgun): 
   	if($shotgun->is_public != 1) { continue; }
-  	$i+=1; ?>
+   ?>
   <h4><?php echo $shotgun->titre; ?></h4>
   <?php echo $shotgun->desc; ?>
   <a href="shotgun?id=<?php echo $shotgun->id; ?>" class="btn btn-primary pull-right">Accéder à l'événement</a><br /><br />
@@ -24,6 +24,7 @@
   			echo "Vente en cours !";
   		}
   	} else {
+  		$i+=1;
   		echo "Ouverture dans : ";
   		echo '<div id="Countdown'.$i.'"></div>';
   		echo '<script> var c'.$i.' = '. (((($diff->d * 24 + $diff->h) * 60) + $diff->i) * 60 + $diff->s) . '; </script>';
