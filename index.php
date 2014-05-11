@@ -116,7 +116,8 @@ $app->get('/shotgun', function() use($app) {
     $app->render('shotgun.php', array(
         "desc" => $desc,
         "username" => isset($_SESSION['username']) ? $_SESSION['username'] : null,
-        "user" => $_SESSION['user'] = $gingerClient->getUser($_SESSION["username"])
+        "user" => $_SESSION['user'] = $gingerClient->getUser($_SESSION["username"]),
+        "payutcClient" => new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "")
     ));
     $app->render('footer.php');
 });
@@ -139,7 +140,8 @@ $app->get('/makeshotgun', function() use($app) {
         $app->redirect("index");
     }
     try {
-        $app->redirect($choice->shotgun($gingerClient->getUser($_SESSION["username"]), $payutcClient));
+        $app->response->redirect($choice->shotgun($gingerClient->getUser($_SESSION["username"]), $payutcClient), 303);
+        return;
     } catch (\Exception $e) {
         $app->flash("info", $e->getMessage());
     }

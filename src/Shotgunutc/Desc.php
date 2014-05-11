@@ -177,7 +177,8 @@ class Desc {
               `payutc_fun_id` int(4) NOT NULL,
               `payutc_cat_id` int(4) NOT NULL,
               PRIMARY KEY (`desc_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+";
         return $query;
     }
 }

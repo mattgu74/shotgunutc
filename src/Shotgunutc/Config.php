@@ -35,7 +35,6 @@ class Config {
 		array("db_password","DB password"),
 		array("db_name","DB name"),
 		array("db_pref","DB prefix"),
-		array("self_url","URL de ce site (utilisé pour les cookies)"),
 		array("payutc_server","URL payutc server"),
 		array("payutc_key","clef d'application payutc"),
 		array("ginger_server","URL ginger server"),

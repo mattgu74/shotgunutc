@@ -23,6 +23,7 @@ namespace Shotgunutc;
 use \Shotgunutc\Db;
 use \Shotgunutc\Config;
 use \Shotgunutc\Form;
+use \Shotgunutc\Option;
 use \Shotgunutc\Field;
 use \Shotgunutc\Desc;
 
@@ -143,18 +144,47 @@ class Choice {
         }
 
         // Check not yet shotguned
-        //if(Option::getUser($user->login))
+        $opt = Option::getUser($user->login, $this->descId);
+        if(count($opt) > 0) {
+            $o = $opt[0];
+            if($o->status == 'W') {
+                $o->checkStatus($payutcClient, $desc->payutc_fun_id);
+            }
+            if($o->status == 'V') {
+                throw new \Exception("Tu as déjà une place pour cet événement.");
+            } else {
+                return $o->payutc_tra_url;
+            }
+        }
 
         // Check available
         if(!$this->isAvailable()) {
             throw new \Exception("Tu as malheureusement cliqué trop lentement, ce choix n'est plus disponible !");
         }
 
-        // If price == 0 : Shotgun
+        // Let's play !
+        $vente = $payutcClient->createTransaction(array(
+            "items" => json_encode(array(array($this->payutc_art_id, 1))),
+            "fun_id" => $desc->payutc_fun_id,
+            "mail" => $user->mail,
+            "return_url" => Config::get("self_url"),
+            "callback_url" => Config::get("self_url")."callback"
+        ));
 
-        // If price > 0 : Shotgun + goto payutc
+        $opt = new Option();
+        $opt->user_login = $user->login;
+        $opt->user_prenom = $user->prenom;
+        $opt->user_nom = $user->nom;
+        $opt->user_mail = $user->mail;
+        $opt->fk_desc_id = $desc->id;
+        $opt->fk_choice_id = $this->id;
+        $opt->payutc_tra_id = $vente->tra_id;
+        $opt->payutc_tra_url = $vente->url;
+        $opt->date_creation = date("Y-m-d H:i:s");
+        $opt->status = 'W';
+        $opt->insert();
 
-        throw new \Exception("Not yet implemented !");
+        return $vente->url;
     }
 
     /*
@@ -181,7 +211,8 @@ class Choice {
               `fk_desc_id` int(4) NOT NULL,
               `payutc_art_id` int(4) NOT NULL,
               PRIMARY KEY (`choice_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+";
         return $query;
     }
 
