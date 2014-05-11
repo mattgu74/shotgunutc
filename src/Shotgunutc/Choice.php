@@ -41,7 +41,38 @@ class Choice {
         $this->stock;
     }
 
-    public function insert($payutcClient) {
+    public function getForm($title, $action, $submit) {
+        $form = new Form();
+        $form->title = $title;
+        $form->action = $action;
+        $form->submit = $submit;
+        $form->addItem(new Field("Nom", "name", $this->name, "Nom du choix"));
+        $form->addItem(new Field("Prix", "price", $this->price, "Prix du choix", "euro"));
+        $form->addItem(new Field("Stock", "stock", $this->stock, "Nombre de place", "number"));
+        return $form;
+    }
+
+    public function getNbPlace($t) {
+        switch($t) {
+            case 'A':
+                return "TODO";
+                break;
+            case 'V':
+                return "TODO";
+                break;
+            case 'W':
+                return "TODO";
+                break;
+            case 'T':
+                return $this->stock;
+                break;
+            default:
+                return $this->stock;
+                break;
+        }
+    }
+
+    public function insert() {
         if($this->id !== null) {
             throw new \Exception("Cannot insert this Desc, please use update() ! ({$this->id})");
         }
@@ -51,9 +82,63 @@ class Choice {
                 "choice_name" => $this->name,
                 "choice_price" => $this->price,
                 "choice_stock" => $this->stock,
+                "fk_desc_id" => $this->descId,
                 "payutc_art_id" => $this->payutc_art_id
             ));
         return $conn->lastInsertId();
+    }
+
+    protected static function getQbBase() {
+        $qb = Db::createQueryBuilder();
+        $qb->select('*')
+           ->from(Config::get("db_pref", "shotgun_")."choice", "c");
+        return $qb;
+    }
+
+    /*
+        Select a specific desc ID from database
+    */
+    public function select($id=null) {
+        if($id===null) {
+            $id=$this->id;
+        }
+
+        $qb = self::getQbBase();
+        $qb->where('c.choice_id = :choice_id')
+            ->setParameter('choice_id', $id);
+
+        $data = $qb->execute()->fetch();
+        $this->bind($data);
+    }
+
+    /*
+        Return all the registered shotguns
+    */
+    public static function getAll($desc_id = null) {
+        $qb = self::getQbBase();
+        if($desc_id) {
+            $qb->where('c.fk_desc_id = :desc_id')
+                ->setParameter('desc_id', $desc_id);
+        }
+        $ret = Array();
+        foreach($qb->execute()->fetchAll() as $data) {
+            $choice = new Choice();
+            $choice->bind($data);
+            $ret[] = $choice;
+        }
+        return $ret;
+    }
+
+    /*
+        Fill local attributes with data from query
+    */
+    protected function bind($data) {
+        $this->id = $data["choice_id"];
+        $this->name = $data["choice_name"];
+        $this->price = $data["choice_price"];
+        $this->stock = $data["choice_stock"];
+        $this->descId = $data["fk_desc_id"];
+        $this->payutc_art_id = $data["payutc_art_id"];
     }
 
     /*
@@ -65,6 +150,7 @@ class Choice {
               `choice_name` varchar(50) NOT NULL,
               `choice_price` int(5) NOT NULL,
               `choice_stock` int(5) NOT NULL,
+              `fk_desc_id` int(4) NOT NULL,
               `payutc_art_id` int(4) NOT NULL,
               PRIMARY KEY (`choice_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;";

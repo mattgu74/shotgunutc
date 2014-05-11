@@ -5,7 +5,7 @@
 
 <div class="row marketing">
 <div class="col-lg-12">
-    <a class="btn btn-primary pull-right" href="editshotgun?id=<?php echo $shotgun->id; ?>" >Modifier</a>
+    <a class="btn btn-primary pull-right disabled" href="editshotgun?id=<?php echo $shotgun->id; ?>" >Modifier</a>
     <h2>Paramètres globaux</h2>
     <strong>Titre du shotgun : </strong><?php echo $shotgun->titre; ?><br />
     <strong>Description du shotgun : </strong><br /><?php echo $shotgun->desc; ?><br />
@@ -20,21 +20,21 @@
         <thead>
             <th>Nom du choix</th>
             <th>Prix</th>
-            <th>Nombre de place Shotguné</th>
-            <th>Nombre de place en cours de shotgun</th>
-            <th>Nombre de place Dispo</th>
-            <th>Nombre de place Total</th>
-            <th>Outils</th>
+            <th>Place Shotguné</th>
+            <th>Place en cours de shotgun</th>
+            <th>Place Dispo</th>
+            <th>Place Total</th>
+            <th></th>
         </thead>
         <?php foreach($shotgun->getChoices() as $choice) { ?>
             <tr>
-                <td><?php echo $choice->getName(); ?></td>
-                <td><?php echo $choice->getPrice(); ?></td>
+                <td><?php echo $choice->name; ?></td>
+                <td><?php echo $choice->price/100; ?> €</td>
                 <td><?php echo $choice->getNbPlace('V'); ?></td>
                 <td><?php echo $choice->getNbPlace('W'); ?></td>
                 <td><?php echo $choice->getNbPlace('A'); ?></td>
                 <td><?php echo $choice->getNbPlace('T'); ?></td>
-                <td>TODO</td>
+                <td><a href="editchoice?id=<?php echo $shotgun->id; ?>&choice_id=<?php echo $choice->id; ?>" class="btn btn-primary disabled">Modifier</a></td>
             </tr>
         <?php } ?>
     </table>

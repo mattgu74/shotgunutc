@@ -24,6 +24,7 @@ use \Shotgunutc\Config;
 use \Shotgunutc\Form;
 use \Shotgunutc\Field;
 use \Shotgunutc\BoolField;
+use \Shotgunutc\TextareaField;
 
 /*
     This class represent a shotgun Description, all parameters needed for each event.
@@ -57,7 +58,7 @@ class Desc {
         $form->action = $action;
         $form->submit = $submit;
         $form->addItem(new Field("Titre", "titre", $this->titre, "Titre du shotgun"));
-        $form->addItem(new Field("Description", "desc", $this->desc, "Description du shotgun"));
+        $form->addItem(new TextareaField("Description", "desc", $this->desc, "Description du shotgun"));
         $form->addItem(new BoolField("Evenement public", "is_public", $this->is_public, "Indique si l'événement est publiquement afficher sur le site de shotgunutc."));
         $form->addItem(new BoolField("Ouvert au non cotisant", "open_non_cotisant", $this->open_non_cotisant, "Est-ce que l'événement est ouvert au non cotisant ?"));
         $form->addItem(new Field("Debut", "debut", $this->debut, "Debut du shotgun", "datetime"));
@@ -66,7 +67,7 @@ class Desc {
     }
 
     public function getChoices() {
-        return Array();
+        return Choice::getAll($this->id);
     }
 
     public function addChoice($name, $prix, $stock) {

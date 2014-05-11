@@ -6,10 +6,30 @@
 
 <div class="row marketing">
 <div class="col-lg-12">
-  <?php foreach($shotguns as $shotgun): ?>
+  <?php $i = 0; foreach($shotguns as $shotgun): 
+  	if($shotgun->is_public != 1) { continue; }
+  	$i+=1; ?>
   <h4><?php echo $shotgun->titre; ?></h4>
-  Ouverture des ventes dans: XX minutes XX secondes. <br />
   <?php echo $shotgun->desc; ?>
+  <a href="shotgun?id=<?php echo $shotgun->id; ?>" class="btn btn-primary pull-right">Accéder à l'événement</a><br /><br />
+  <?php
+  	$debut = new DateTime($shotgun->debut);
+  	$fin = new DateTime($shotgun->fin);
+  	$now = new DateTime("NOW");
+  	$diff = $now->diff($debut);
+  	if($diff->invert) {
+  		if($fin > $now) {
+  			echo "Vente terminé.";
+  		} else {
+  			echo "Vente en cours !";
+  		}
+  	} else {
+  		echo "Ouverture dans : ";
+  		echo '<div id="Countdown'.$i.'"></div>';
+  		echo '<script> var c'.$i.' = '. (((($diff->d * 24 + $diff->h) * 60) + $diff->i) * 60 + $diff->s) . '; </script>';
+  	}
+  ?><br />
+
 
   <?php endforeach; ?>
   <?php if(count($shotguns) == 0): ?>

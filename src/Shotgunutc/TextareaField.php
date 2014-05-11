@@ -21,15 +21,14 @@
 
 namespace Shotgunutc;
 
-class Field {
+class TextareaField {
 	/**
 	 * Constructeur.
 	 */
-	public function __construct($label, $field_name, &$value, $explanation="", $type="text") {
+	public function __construct($label, $field_name, &$value, $explanation="") {
         $this->label = $label;
         $this->value =& $value;
         $this->field_name = $field_name;
-        $this->type = $type;
         if($explanation) {
             $this->explanation = '<a href="#" data-toggle="tooltip" title="'.$explanation.'">?</a>';
         } else {
@@ -38,31 +37,18 @@ class Field {
 	}
 
     public function html() {
-        if($this->type == "euro") {
-            $type = "number";
-            $more = 'step="0.01"';
-            $value = $this->value / 100;
-        } else {
-            $type = $this->type;
-            $value = $this->value;
-            $more = "";
-        }
         return '
             <div class="form-group">
                 <label for="'.$this->field_name.'">'.$this->label.'</label>
                     '.$this->explanation.'
                 <div class="controls">
-                    <input type="'.$type.'" class="form-control" name="'.$this->field_name.'" value="'.$value.'" '.$more.'>                    
+                    <textarea class="form-control" name="'.$this->field_name.'"" rows="3">'.$this->value.'</textarea>                  
                 </div>
             </div>';
     }
 
     public function load() {
         global $_REQUEST;
-        if($this->type == "euro") {
-            $this->value = $_REQUEST[$this->field_name] * 100;
-        } else {
-            $this->value = $_REQUEST[$this->field_name];
-        }
+        $this->value = $_REQUEST[$this->field_name];
     }
 }
