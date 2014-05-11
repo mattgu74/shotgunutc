@@ -43,13 +43,16 @@ class Desc {
     public $payutc_cat_id;
 
     public function __construct($id=null) {
+        $this->table_name = Config::get("db_pref", "shotgun_")."desc";
+
         if(!empty($id)) {
             $this->select($id);
+        } else {
+            // On préécrit des dates pour donner l'exemple du format de date.
+            $this->debut = date("Y-m-d H:i:s");
+            $this->fin = date("Y-m-d H:i:s");
         }
-        $this->table_name = Config::get("db_pref", "shotgun_")."desc";
-        // On préécrit des dates pour donner l'exemple du format de date.
-        $this->debut = date("Y-m-d H:i:s");
-        $this->fin = date("Y-m-d H:i:s");
+
     }
 
     public function getForm($title, $action, $submit) {
