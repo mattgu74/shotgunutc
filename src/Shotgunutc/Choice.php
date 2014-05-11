@@ -55,15 +55,28 @@ class Choice {
     }
 
     public function getNbPlace($t) {
+        $qb = Db::createQueryBuilder();
+        $qb->select('count(*) as total')
+           ->from(Config::get("db_pref", "shotgun_")."option", "o")
+           ->where('fk_desc_id = :desc_id')
+           ->andWhere('fk_choice_id = :choice_id')
+           ->setParameter('choice_id', $this->id)
+           ->setParameter('desc_id', $this->descId);
         switch($t) {
             case 'A':
-                return "TODO";
+                $qb->andWhere("option_status = 'V'");
+                $r = $qb->execute()->fetch();
+                return $this->stock - $r["total"];
                 break;
             case 'V':
-                return "TODO";
+                $qb->andWhere("option_status = 'V'");
+                $r = $qb->execute()->fetch();
+                return $r["total"];
                 break;
             case 'W':
-                return "TODO";
+                $qb->andWhere("option_status = 'W'");
+                $r = $qb->execute()->fetch();
+                return $r["total"];
                 break;
             case 'T':
                 return $this->stock;

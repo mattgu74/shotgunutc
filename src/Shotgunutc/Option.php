@@ -88,6 +88,7 @@ class Option {
             ->setParameter('option_id', $this->id, "integer")
             ->setParameter('paiement', $this->date_paiement)
             ->setParameter('status', $this->status);
+        $qb->execute();
     }
 
     protected static function getQbBase() {
