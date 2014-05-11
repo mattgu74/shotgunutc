@@ -24,6 +24,7 @@ use \Shotgunutc\Db;
 use \Shotgunutc\Config;
 use \Shotgunutc\Form;
 use \Shotgunutc\Field;
+use \Shotgunutc\Desc;
 
 class Choice {
     protected $table_name;
@@ -70,6 +71,10 @@ class Choice {
                 return $this->stock;
                 break;
         }
+    }
+
+    public function isAvailable() {
+        return True;    
     }
 
     public function insert() {
@@ -127,6 +132,29 @@ class Choice {
             $ret[] = $choice;
         }
         return $ret;
+    }
+
+    public function shotgun($user, $payutcClient) {
+        $desc = new Desc();
+        $desc->select($this->descId);
+        // Check Cotisation !
+        if($desc->open_non_cotisant == 0 && $user->is_cotisant != 1) {
+            throw new \Exception("Tu n'es pas cotisant BDE-UTC !");
+        }
+
+        // Check not yet shotguned
+        //if(Option::getUser($user->login))
+
+        // Check available
+        if(!$this->isAvailable()) {
+            throw new \Exception("Tu as malheureusement cliqué trop lentement, ce choix n'est plus disponible !");
+        }
+
+        // If price == 0 : Shotgun
+
+        // If price > 0 : Shotgun + goto payutc
+
+        throw new \Exception("Not yet implemented !");
     }
 
     /*

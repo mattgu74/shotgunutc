@@ -15,6 +15,10 @@
     <script src="static/jquery.plugin.js"></script>
     <script src="static/jquery.countdown.js"></script>
     <script>
+    function refresh() {
+        location.reload();
+    }
+
     (function($) {
     $.countdown.regionalOptions['fr'] = {
         labels: ['Années', 'Mois', 'Semaines', 'Jours', 'Heures', 'Minutes', 'Secondes'],
@@ -28,12 +32,12 @@
     $.countdown.setDefaults($.countdown.regionalOptions['fr']);
 
 
-    $('#Countdown1').countdown({until: c1, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}' });
-    $('#Countdown2').countdown({until: c2, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}' });
-    $('#Countdown3').countdown({until: c3, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}' });
-    $('#Countdown4').countdown({until: c4, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}' });
-    $('#Countdown5').countdown({until: c5, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}' });
-    $('#Countdown6').countdown({until: c6, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}' });
+    $('#Countdown1').countdown({until: c1, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}', onExpiry: refresh});
+    $('#Countdown2').countdown({until: c2, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}', onExpiry: refresh});
+    $('#Countdown3').countdown({until: c3, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}', onExpiry: refresh});
+    $('#Countdown4').countdown({until: c4, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}', onExpiry: refresh});
+    $('#Countdown5').countdown({until: c5, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}', onExpiry: refresh});
+    $('#Countdown6').countdown({until: c6, layout: '<b>{dn} {dl} {hnn}{sep}{mnn}{sep}{snn}</b> {desc}', onExpiry: refresh});
 
 })(jQuery);
     </script>

@@ -21,6 +21,7 @@
 require 'vendor/autoload.php';
 use Shotgunutc\Desc;
 use Shotgunutc\Choice;
+use Shotgunutc\Option;
 use Shotgunutc\Config;
 use Shotgunutc\Cas;
 use \Ginger\Client\GingerClient;
@@ -118,6 +119,31 @@ $app->get('/shotgun', function() use($app) {
         "user" => $_SESSION['user'] = $gingerClient->getUser($_SESSION["username"])
     ));
     $app->render('footer.php');
+});
+
+// Show a specific shotgun page
+$app->get('/makeshotgun', function() use($app) {
+    $gingerClient = new GingerClient(Config::get('ginger_key'), Config::get('ginger_server'));
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+
+    if(!isset($_GET["id"]) || !isset($_GET["choice_id"])) {
+        $app->redirect("index");
+    } else {
+        $id = $_GET["id"];
+        $choice_id = $_GET["choice_id"];
+    } 
+    $choice = new Choice();
+    $choice->select($choice_id);
+    if($choice->descId != $id) {
+        $app->flash("info", "A quoi tu joues ?");
+        $app->redirect("index");
+    }
+    try {
+        $app->redirect($choice->shotgun($gingerClient->getUser($_SESSION["username"]), $payutcClient));
+    } catch (\Exception $e) {
+        $app->flash("info", $e->getMessage());
+    }
+    $app->redirect("shotgun?id=".$id);
 });
 
 /*
@@ -263,7 +289,7 @@ $app->post('/addchoice', function() use($app, $admin, $status) {
         if(isset($ret->success)) {
             $choice->payutc_art_id = $ret->success;
         }
-        $id = $choice->insert();
+        $choice->insert();
     } catch (\Exception $e) {
         $app->flashNow('info', "Une erreur est survenu, la création du choix à échoué. => {$e->getMessage()}");
         $app->render('header.php', array());
@@ -360,7 +386,8 @@ $app->get('/getsql', function() use($app, $payutcClient, $admin, $status) {
     if($admin) {
         $app->render('sql.php', array(
             "desc" => Desc::install(),
-            "choice" => Choice::install()
+            "choice" => Choice::install(),
+            "option" => Option::install()
             ));
     } else {
         $app->render('install_not_admin.php', array(

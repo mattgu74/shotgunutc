@@ -18,7 +18,7 @@
   	$now = new DateTime("NOW");
   	$diff = $now->diff($debut);
   	if($diff->invert) {
-  		if($fin > $now) {
+  		if($now->diff($fin)->invert) {
   			echo "Vente terminé.";
   		} else {
   			echo "Vente en cours !";
