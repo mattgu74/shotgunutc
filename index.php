@@ -152,7 +152,7 @@ $app->get('/makeshotgun', function() use($app) {
     ADMIN ZONE
 */
 
-$app->get('/createshotgun', function() use($app, $admin, $status) {
+$app->get('/shotgunform', function() use($app, $admin, $status) {
     $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["fun_id"])) {
         $app->redirect("admin");
@@ -165,8 +165,14 @@ $app->get('/createshotgun', function() use($app, $admin, $status) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
     }
-    $desc = new Desc();
-    $form = $desc->getForm("Création d'un shotgun", "createshotgun?fun_id=".$fun_id, "Créer");
+    if(isset($_GET["desc_id"])) {
+        $desc_id = $_GET["desc_id"];
+        $desc = new Desc($desc_id);
+        $form = $desc->getForm("Modification d'un shotgun", "shotgunform?fun_id=".$fun_id."&desc_id=".$desc_id, "Modifier");
+    } else {
+        $desc = new Desc();
+        $form = $desc->getForm("Création d'un shotgun", "shotgunform?fun_id=".$fun_id, "Créer");
+    }
     $app->render('header.php', array());
     $app->render('form.php', array(
         "form" => $form
@@ -174,7 +180,7 @@ $app->get('/createshotgun', function() use($app, $admin, $status) {
     $app->render('footer.php');
 });
 
-$app->post('/createshotgun', function() use($app, $admin, $status) {
+$app->post('/shotgunform', function() use($app, $admin, $status) {
     $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["fun_id"])) {
         $app->redirect("admin");
@@ -187,30 +193,38 @@ $app->post('/createshotgun', function() use($app, $admin, $status) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
     }
-    $desc = new Desc();
-    $form = $desc->getForm("Création d'un shotgun", "createshotgun?fun_id=".$fun_id, "Créer");
-    $form->load();
-    try {
-        // Création de la catégorie dans payutc (celle ou on rentrera les articles)
-        $ret = $payutcClient->setCategory(array(
-            "name" => $desc->titre, 
-            "parent_id" => null, 
-            "fun_id" => $fun_id));
-        if(isset($ret->success)) {
-            $desc->payutc_fun_id = $fun_id;
-            $desc->payutc_cat_id = $ret->success;
+    if(isset($_GET["desc_id"])) {
+        $desc_id = $_GET["desc_id"];
+        $desc = new Desc($desc_id);
+        $form = $desc->getForm("Modification d'un shotgun", "shotgunform?fun_id=".$fun_id."&desc_id=".$desc_id, "Modifier");
+        $form->load();
+        $desc->update();
+    } else {
+        $desc = new Desc();
+        $form = $desc->getForm("Création d'un shotgun", "createshotgun?fun_id=".$fun_id, "Créer");
+        $form->load();
+        try {
+            // Création de la catégorie dans payutc (celle ou on rentrera les articles)
+            $ret = $payutcClient->setCategory(array(
+                "name" => $desc->titre, 
+                "parent_id" => null, 
+                "fun_id" => $fun_id));
+            if(isset($ret->success)) {
+                $desc->payutc_fun_id = $fun_id;
+                $desc->payutc_cat_id = $ret->success;
+            }
+            $desc_id = $desc->insert();
+        } catch (\Exception $e) {
+            $app->flashNow('info', "Une erreur est survenu, la création du shotgun à échoué. => {$e->getMessage()}");
+            $app->render('header.php', array());
+            $app->render('form.php', array(
+                "form" => $form
+            ));
+            $app->render('footer.php');
+            return;
         }
-        $id = $desc->insert();
-    } catch (\Exception $e) {
-        $app->flashNow('info', "Une erreur est survenu, la création du shotgun à échoué. => {$e->getMessage()}");
-        $app->render('header.php', array());
-        $app->render('form.php', array(
-            "form" => $form
-        ));
-        $app->render('footer.php');
-        return;
     }
-    $app->redirect("adminshotgun?id=".$id);
+    $app->redirect("adminshotgun?id=".$desc_id);
 });
 
 $app->get('/adminshotgun', function() use($app, $status) {

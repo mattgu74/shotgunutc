@@ -5,7 +5,7 @@
 
 <div class="row marketing">
 <div class="col-lg-12">
-    <a class="btn btn-primary pull-right disabled" href="editshotgun?id=<?php echo $shotgun->id; ?>" >Modifier</a>
+    <a class="btn btn-primary pull-right" href="shotgunform?fun_id=<?php echo $shotgun->payutc_fun_id; ?>&desc_id=<?php echo $shotgun->id; ?>" >Modifier</a>
     <h2>Paramètres globaux</h2>
     <strong>Titre du shotgun : </strong><?php echo $shotgun->titre; ?><br />
     <strong>Description du shotgun : </strong><br /><?php echo $shotgun->desc; ?><br />

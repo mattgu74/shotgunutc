@@ -13,7 +13,7 @@
             </ul>
             <br /><br />
         <?php else: ?>
-            <a href="createshotgun?fun_id=<?php echo $fun->fun_id; ?>" class="btn btn-primary pull-right">Créer un shotgun</a>
+            <a href="shotgunform?fun_id=<?php echo $fun->fun_id; ?>" class="btn btn-primary pull-right">Créer un shotgun</a>
             <h4><?php echo $fun->name; ?></h4>
             <ul>
             <?php $c = 0; foreach($shotguns as $shotgun) { 

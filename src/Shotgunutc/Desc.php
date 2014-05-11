@@ -103,7 +103,23 @@ class Desc {
         Some fields, like $creator, $payutc_fun_id and $payutc_cat_id are volunterely not updatable.
     */
     public function update() {
-
+        $qb = Db::createQueryBuilder();
+        $qb->update(Config::get("db_pref", "shotgun_")."desc", 'd')
+            ->set('d.desc_titre', ':titre')
+            ->setParameter('titre', $this->titre)
+            ->set('d.desc_desc', ':desc')
+            ->setParameter('desc', $this->desc)
+            ->set('d.desc_is_public', ':public')
+            ->setParameter('public', $this->is_public)
+            ->set('d.desc_open_non_cotisant', ':cotisant')
+            ->setParameter('cotisant', $this->open_non_cotisant)
+            ->set('d.desc_debut', ':debut')
+            ->setParameter('debut', $this->debut)
+            ->set('d.desc_fin', ':fin')
+            ->setParameter('fin', $this->fin)
+            ->where('desc_id = :desc_id')
+            ->setParameter('desc_id', $this->id);
+        $qb->execute();
     }
 
     protected static function getQbBase() {
