@@ -128,9 +128,9 @@ class Option {
 		$qb = self::getQbBase();
 		$qb->where('o.fk_desc_id = :desc_id')
                 ->setParameter('desc_id', $descId);
-        $qb->where('o.user_login = :login')
+        $qb->andWhere('o.user_login = :login')
                 ->setParameter('login', $login);
-        $qb->where('o.option_status != :st')
+        $qb->andWhere('o.option_status != :st')
         		->setParameter('st', 'A');
 
         $ret = Array();
@@ -152,7 +152,7 @@ class Option {
                 ->setParameter('desc_id', $desc_id);
         }
         if($choice_id) {
-            $qb->where('o.fk_choice_id = :choice_id')
+            $qb->andWhere('o.fk_choice_id = :choice_id')
                 ->setParameter('choice_id', $choice_id);
         }
         $ret = Array();
