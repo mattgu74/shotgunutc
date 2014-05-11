@@ -29,7 +29,7 @@
   		echo '<div id="Countdown'.$i.'"></div>';
   		echo '<script> var c'.$i.' = '. (((($diff->d * 24 + $diff->h) * 60) + $diff->i) * 60 + $diff->s) . '; </script>';
   	}
-  ?><br />
+  ?><br /><br /><hr />
 
 
   <?php endforeach; ?>
