@@ -9,6 +9,7 @@
             <h4>Super administration</h4>
             <ul>
                 <li><a href="install">Configuration du système</a></li>
+                <li><a href="getsql">Obtenir le fichier sql d'installation</a></li>
             </ul>
             <br /><br />
         <?php else: ?>

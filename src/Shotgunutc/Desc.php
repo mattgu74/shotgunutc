@@ -69,6 +69,12 @@ class Desc {
         return Array();
     }
 
+    public function addChoice($name, $prix, $stock) {
+        $choice = new Choice($this->id, $name, $prix, $stock);
+        $choice->insert();
+        return $choice;
+    }
+
     /*
         Insert the current object into database.
     */

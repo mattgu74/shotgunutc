@@ -20,6 +20,7 @@
 
 require 'vendor/autoload.php';
 use Shotgunutc\Desc;
+use Shotgunutc\Choice;
 use Shotgunutc\Config;
 use Shotgunutc\Cas;
 use \Ginger\Client\GingerClient;
@@ -270,6 +271,23 @@ $app->get('/logout', function() use($app, $payutcClient) {
 /*
     Installation/Configuration zone
 */
+
+$app->get('/getsql', function() use($app, $payutcClient, $admin, $status) {
+    // Remove flash (we are on the good page to install/configure system)
+    $app->flashNow('info', null);
+    $app->render('header.php', array());
+    if($admin) {
+        $app->render('sql.php', array(
+            "desc" => Desc::install(),
+            "choice" => Choice::install()
+            ));
+    } else {
+        $app->render('install_not_admin.php', array(
+            "status" => $status,
+            "debug" => $payutcClient->cookie));
+    }
+    $app->render('footer.php');
+});
 
 // Install options
 $app->get('/install', function() use($app, $payutcClient, $admin, $status) {
