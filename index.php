@@ -480,4 +480,17 @@ $app->get('/installpayutc', function() use($app, $payutcClient, $admin) {
     $app->redirect("install");
 });
 
+
+$app->get('/cron', function() use($app, $payutcClient, $admin) {
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $options = Option::getAll();
+    foreach($options as $opt) {
+        if($opt->status == 'W') {
+            $funId = (new Desc($opt->fk_desc_id))->payutc_fun_id;
+            $opt->checkStatus($payutcClient, $funId);
+        }
+    }
+    $app->redirect('index');
+});
+
 $app->run();
