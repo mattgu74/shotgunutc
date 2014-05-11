@@ -88,7 +88,7 @@ class Choice {
     }
 
     public function isAvailable() {
-        return True;    
+        return ($this->getNbPlace('A') > 0);
     }
 
     public function insert() {
@@ -173,6 +173,19 @@ class Choice {
         // Check available
         if(!$this->isAvailable()) {
             throw new \Exception("Tu as malheureusement cliqué trop lentement, ce choix n'est plus disponible !");
+        }
+
+        // Check always open
+        $debut = new DateTime($desc->debut);
+        $fin = new DateTime($desc->fin);
+        $now = new DateTime("NOW");
+        $diff = $now->diff($debut);
+        if($diff->invert) {
+            if($now->diff($fin)->invert) {
+                throw new \Exception("Désolé la vente est terminé...");
+            }
+        } else {
+            throw new \Exception("La vente n'est pas encore ouvert ! Qu'est ce que tu fais la ?");
         }
 
         // Let's play !
