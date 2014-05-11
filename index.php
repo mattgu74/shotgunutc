@@ -116,7 +116,7 @@ $app->get('/shotgun', function() use($app) {
     $app->render('shotgun.php', array(
         "desc" => $desc,
         "username" => isset($_SESSION['username']) ? $_SESSION['username'] : null,
-        "user" => $_SESSION['user'] = $gingerClient->getUser($_SESSION["username"]),
+        "user" => isset($_SESSION['username']) ? $gingerClient->getUser($_SESSION["username"]) : null,
         "payutcClient" => new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "")
     ));
     $app->render('footer.php');
