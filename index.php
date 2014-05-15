@@ -494,4 +494,15 @@ $app->get('/cron', function() use($app, $payutcClient, $admin) {
     $app->redirect('index');
 });
 
+$app->get('/callback', function() use($app, $payutcClient, $admin) {
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $options = Option::getAll();
+    foreach($options as $opt) {
+        $desc = new Desc($opt->fk_desc_id);
+        $funId = $desc->payutc_fun_id;
+        $opt->checkStatus($payutcClient, $funId);
+    }
+    $app->redirect('index');
+});
+
 $app->run();

@@ -145,7 +145,7 @@ class Option {
     /*
         Return all
     */
-    public static function getAll($desc_id = null, $choice_id = null) {
+    public static function getAll($desc_id = null, $choice_id = null, $tra_id = null) {
         $qb = self::getQbBase();
         if($desc_id) {
             $qb->where('o.fk_desc_id = :desc_id')
@@ -154,6 +154,10 @@ class Option {
         if($choice_id) {
             $qb->andWhere('o.fk_choice_id = :choice_id')
                 ->setParameter('choice_id', $choice_id);
+        }
+        if($tra_id) {
+            $qb->andWhere('o.payutc_tra_id = :tra_id')
+                ->setParameter('tra_id', $tra_id);
         }
         $ret = Array();
         foreach($qb->execute()->fetchAll() as $data) {
