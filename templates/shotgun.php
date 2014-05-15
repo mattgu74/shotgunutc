@@ -29,7 +29,7 @@ use \Shotgunutc\Option;
                 echo '<div class="alert alert-info">Félicitation '.$user->prenom.' '.$user->nom.', Tu as une place pour cet événement. Les organisateurs te contacteront par mail très prochainement.</div>';
             } else {
                 echo '<div class="alert alert-info">'.$user->prenom.' '.$user->nom.', Une place est en cours de réservation avec tes identifiants. 
-                Tu peux <a class="btn btn-primary" href="'.$o->payutc_tra_url.'">retourner sur payutc</a> pour terminer le paiement ou <a class="btn btn-danger" href="#">annuler ta commande</a> (Dans tous les cas si tu ne paies pas dans les 15minutes à venir ta commande sera automatiquement annulé).</div>';
+                Tu peux <a class="btn btn-primary" href="'.$o->payutc_tra_url.'">retourner sur payutc</a> pour terminer le paiement ou <a class="btn btn-danger" href="cancel?id='.$desc->id.'">annuler ta commande</a> (Dans tous les cas si tu ne paies pas dans les 15minutes à venir ta commande sera automatiquement annulé).</div>';
             }
         }
     }
