@@ -158,9 +158,12 @@ $app->get('/cancel', function() use($app) {
     } else {
         $id = $_GET["id"];
     } 
-    $option = Option::getUser($_SESSION["username"], $id);
-    $option->status = 'A';
-    $option->update();
+    $options = Option::getUser($_SESSION["username"], $id);
+    if(count($options) > 0) {
+        $option = $options[0];
+        $option->status = 'A';
+        $option->update();
+    }
     $app->redirect("shotgun?id=".$id);
 });
 
