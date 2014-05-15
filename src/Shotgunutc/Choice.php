@@ -64,7 +64,7 @@ class Choice {
            ->setParameter('desc_id', $this->descId);
         switch($t) {
             case 'A':
-                $qb->andWhere("option_status = 'V'");
+                $qb->andWhere("option_status = 'V' or option_status = 'W'");
                 $r = $qb->execute()->fetch();
                 return $this->stock - $r["total"];
                 break;

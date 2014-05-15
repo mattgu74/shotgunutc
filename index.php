@@ -486,7 +486,8 @@ $app->get('/cron', function() use($app, $payutcClient, $admin) {
     $options = Option::getAll();
     foreach($options as $opt) {
         if($opt->status == 'W') {
-            $funId = (new Desc($opt->fk_desc_id))->payutc_fun_id;
+            $desc = new Desc($opt->fk_desc_id);
+            $funId = $desc->payutc_fun_id;
             $opt->checkStatus($payutcClient, $funId);
         }
     }
