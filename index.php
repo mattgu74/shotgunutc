@@ -148,6 +148,23 @@ $app->get('/makeshotgun', function() use($app) {
     $app->redirect("shotgun?id=".$id);
 });
 
+// REmove a choice
+$app->get('/cancel', function() use($app) {
+    $gingerClient = new GingerClient(Config::get('ginger_key'), Config::get('ginger_server'));
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+
+    if(!isset($_GET["id"])) {
+        $app->redirect("index");
+    } else {
+        $id = $_GET["id"];
+    } 
+    $option = Option::getUser($_SESSION["username"], $id);
+    $option->status = 'A';
+    $option->update();
+    $app->redirect("shotgun?id=".$id);
+});
+
+
 /*
     ADMIN ZONE
 */
