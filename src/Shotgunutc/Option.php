@@ -114,10 +114,12 @@ class Option {
                 $subject = "[ShotgunUTC] - Confirmation d'achat";
                 $message = "Bonjour {$this->user_prenom} {$this->user_nom},<br />
                 <br />
-                Ce mail vient confirmer que tu as bien acheté une place pour :</br>
+                Ce mail vient confirmer que tu as bien acheté une place pour :<br />
                 {$desc->titre} - {$choice->name}<br />
                 <br />
-                Normalement les organisateurs te recontacteront prochaine pour te donner plus d'informations.<br />
+                Ton n° de reservation est le : {$this->id}<br />
+                <br />
+                Normalement les organisateurs te recontacteront prochainement pour te donner plus d'informations.<br />
                 Si ce n'est pas le cas, contacte les ;) <br />
                 <br />
                 En cas de problème, n'essaie pas de contacter shotgun@assos.utc.fr (personne ne reçoit l'adresse)<br />
