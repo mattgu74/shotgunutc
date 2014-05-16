@@ -19,6 +19,7 @@
  */
 
 namespace Shotgunutc;
+use \Shotgunutc\Desc;
 use \Shotgunutc\Db;
 use \Shotgunutc\Config;
 
@@ -80,7 +81,7 @@ class Option {
         Some fields, like $creator, $payutc_fun_id and $payutc_cat_id are volunterely not updatable.
     */
     public function update() {
-    	$qb = Db::createQueryBuilder();
+        $qb = Db::createQueryBuilder();
         $qb->update(Config::get("db_pref", "shotgun_")."option", 'opt')
             ->set('opt.option_status', ':status')
             ->set('opt.option_date_paiement', ':paiement')
@@ -99,13 +100,36 @@ class Option {
     }
 
     public function checkStatus($payutcClient, $funId) {
-		$transaction = $payutcClient->getTransactionInfo(array("fun_id" => $funId, "tra_id" => $this->payutc_tra_id));
-		if($transaction->status != $this->status) {
-			$this->date_paiement = date("Y-m-d H:i:s");
-			$this->status = $transaction->status;
-			$this->update();
-		}
-		return $this->status;
+        $transaction = $payutcClient->getTransactionInfo(array("fun_id" => $funId, "tra_id" => $this->payutc_tra_id));
+        if($transaction->status != $this->status) {
+            $this->date_paiement = date("Y-m-d H:i:s");
+            $this->status = $transaction->status;
+            $this->update();
+            if($this->status == 'V') {
+                $desc = new Desc($this->fk_desc_id);
+                $choice = new Choice();
+                $choice->select($this->fk_choice_id);
+                // send
+                $to = $this->user_mail;
+                $subject = "[ShotgunUTC] - Confirmation d'achat";
+                $message = "Bonjour {$this->user_prenom} {$this->user_nom},<br />
+                <br />
+                Ce mail vient confirmer que tu as bien acheté une place pour :</br>
+                {$desc->titre} - {$choice->name}<br />
+                <br />
+                Normalement les organisateurs te recontacteront prochaine pour te donner plus d'informations.<br />
+                Si ce n'est pas le cas, contacte les ;) <br />
+                <br />
+                En cas de problème, n'essaie pas de contacter shotgun@assos.utc.fr (personne ne reçoit l'adresse)<br />
+                Pour les problèmes 'techniques' tu peux contacter simde@assos.utc.fr<br />
+                ";
+                $headers = 'MIME-Version: 1.0' . "\r\n";
+                $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+                $headers .= 'From: Shotgunutc <shotgun@assos.utc.fr>' . "\r\n";
+                mail($to, $subject, $message, $headers);
+            }
+        }
+        return $this->status;
     }
 
     /*
@@ -125,13 +149,13 @@ class Option {
     }
 
     public static function getUser($login, $descId) {
-		$qb = self::getQbBase();
-		$qb->where('o.fk_desc_id = :desc_id')
+        $qb = self::getQbBase();
+        $qb->where('o.fk_desc_id = :desc_id')
                 ->setParameter('desc_id', $descId);
         $qb->andWhere('o.user_login = :login')
                 ->setParameter('login', $login);
         $qb->andWhere('o.option_status != :st')
-        		->setParameter('st', 'A');
+                ->setParameter('st', 'A');
 
         $ret = Array();
         foreach($qb->execute()->fetchAll() as $data) {
@@ -140,7 +164,7 @@ class Option {
             $ret[] = $opt;
         }
         return $ret;
-	}
+    }
 
     /*
         Return all
