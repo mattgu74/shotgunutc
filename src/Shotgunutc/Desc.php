@@ -155,7 +155,7 @@ class Desc {
         $qb = self::getQbBase();
         if($fun_id) {
             $qb->where('d.payutc_fun_id = :fun_id')
-                ->setParameter('fun_id', $fun_id)
+                ->setParameter('fun_id', $fun_id);
         }
         $qb->orderBy('d.desc_debut', 'DESC');
         if($max) {
