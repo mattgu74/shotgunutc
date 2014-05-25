@@ -151,11 +151,15 @@ class Desc {
     /*
         Return all the registered shotguns
     */
-    public static function getAll($fun_id = null) {
+    public static function getAll($fun_id = null, $max = 10) {
         $qb = self::getQbBase();
         if($fun_id) {
             $qb->where('d.payutc_fun_id = :fun_id')
-                ->setParameter('fun_id', $fun_id);
+                ->setParameter('fun_id', $fun_id)
+        }
+        $qb->orderBy('d.desc_debut', 'DESC');
+        if($max) {
+            $qb->setMaxResults(10);
         }
         $ret = Array();
         foreach($qb->execute()->fetchAll() as $data) {
