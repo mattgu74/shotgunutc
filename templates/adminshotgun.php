@@ -20,7 +20,7 @@
         <thead>
             <th>Nom du choix</th>
             <th>Prix</th>
-            <th>Place Shotguné</th>
+            <th>Place Shotgunnée</th>
             <th>Place en cours de shotgun</th>
             <th>Place Dispo</th>
             <th>Place Total</th>

@@ -14,8 +14,8 @@ use \Shotgunutc\Option;
     if(!$username) {
         echo '<div class="alert alert-info">Avant toute chose tu dois te connecter ! <a class="btn btn-primary" href="login">Connexion</a></div>';
     } else if($desc->open_non_cotisant == 0 && $user->is_cotisant != 1) {
-        echo '<div class="alert alert-info">Cet événement n\'est pas ouvert au non-cotisant. 
-        Si tu veux prendre ta place, tu dois d\'abord aller cotiser 
+        echo '<div class="alert alert-info">Cet événement n\'est pas ouvert aux non-cotisants.
+        Si tu veux prendre ta place, tu dois d\'abord aller cotiser
         <a class="btn btn-primary" href="https://assos.utc.fr/bde/bdecotiz/">BDE COTIZ</a></div>';
     } else {
         $opt = Option::getUser($user->login, $desc->id);
@@ -28,8 +28,8 @@ use \Shotgunutc\Option;
             if($o->status == 'V') {
                 echo '<div class="alert alert-info">Félicitation '.$user->prenom.' '.$user->nom.', Tu as une place pour cet événement. Les organisateurs te contacteront par mail très prochainement.</div>';
             } else {
-                echo '<div class="alert alert-info">'.$user->prenom.' '.$user->nom.', Une place est en cours de réservation avec tes identifiants. 
-                Tu peux <a class="btn btn-primary" href="'.$o->payutc_tra_url.'">retourner sur payutc</a> pour terminer le paiement ou <a class="btn btn-danger" href="cancel?id='.$desc->id.'">annuler ta commande</a> (Dans tous les cas si tu ne paies pas dans les 15minutes à venir ta commande sera automatiquement annulé).</div>';
+                echo '<div class="alert alert-info">'.$user->prenom.' '.$user->nom.', Une place est en cours de réservation avec tes identifiants.
+                Tu peux <a class="btn btn-primary" href="'.$o->payutc_tra_url.'">retourner sur payutc</a> pour terminer le paiement ou <a class="btn btn-danger" href="cancel?id='.$desc->id.'">annuler ta commande</a> (Dans tous les cas si tu ne paies pas dans les 15 minutes à venir ta commande sera automatiquement annulée).</div>';
             }
         }
     }
@@ -39,7 +39,7 @@ use \Shotgunutc\Option;
     $diff = $now->diff($debut);
     if($diff->invert) {
         if($now->diff($fin)->invert) {
-            echo "Vente terminé.";
+            echo "Vente terminée.";
         } else {
             ?>
                 <h2>Choisis ta place !</h2>
@@ -58,7 +58,7 @@ use \Shotgunutc\Option;
                         <td><?php echo $choice->name; ?></td>
                         <td><?php echo $choice->price/100; ?> €</td>
                         <td>
-                        <?php if($has_place) { ?> 
+                        <?php if($has_place) { ?>
                             <a href="" class="btn btn-danger disabled">Tu as déjà une place !</a>
                         <?php } else if($choice->isAvailable()) { ?>
                             <a href="makeshotgun?id=<?php echo $desc->id; ?>&choice_id=<?php echo $choice->id; ?>" class="btn btn-primary">Shotgun !</a>
