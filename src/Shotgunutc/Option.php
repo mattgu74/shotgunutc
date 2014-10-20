@@ -95,7 +95,8 @@ class Option {
     protected static function getQbBase() {
         $qb = Db::createQueryBuilder();
         $qb->select('*')
-           ->from(Config::get("db_pref", "shotgun_")."option", "o", Config::get("db_pref", "shotgun_")."choice", "c")
+           ->from(Config::get("db_pref", "shotgun_")."option", "o")
+           ->from(Config::get("db_pref", "shotgun_")."choice", "c")
            ->where('o.fk_choice_id = c.choice_id');
         return $qb;
     }
