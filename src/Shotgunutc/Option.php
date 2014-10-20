@@ -95,7 +95,9 @@ class Option {
     protected static function getQbBase() {
         $qb = Db::createQueryBuilder();
         $qb->select('*')
-           ->from(Config::get("db_pref", "shotgun_")."option", "o");
+           ->from(Config::get("db_pref", "shotgun_")."option", "o")
+           ->andFrom(Config::get("db_pref", "shotgun_")."choice", "c")
+           ->where('o.fk_choice_id = c.choice_id');
         return $qb;
     }
 
@@ -143,7 +145,7 @@ class Option {
         }
 
         $qb = self::getQbBase();
-        $qb->where('o.option_id = :opt_id')
+        $qb->andWhere('o.option_id = :opt_id')
             ->setParameter('opt_id', $id);
 
         $data = $qb->execute()->fetch();
@@ -174,7 +176,7 @@ class Option {
     public static function getAll($desc_id = null, $choice_id = null, $tra_id = null) {
         $qb = self::getQbBase();
         if($desc_id) {
-            $qb->where('o.fk_desc_id = :desc_id')
+            $qb->andWhere('o.fk_desc_id = :desc_id')
                 ->setParameter('desc_id', $desc_id);
         }
         if($choice_id) {
@@ -210,6 +212,9 @@ class Option {
         $this->date_creation = $data["option_date_creation"];
         $this->date_paiement = $data["option_date_paiement"];
         $this->status = $data["option_status"];
+        
+        $this->choice_name = $data["choice_name"];
+        $this->choice_price = $data["choice_price"];
     }
 
     /*

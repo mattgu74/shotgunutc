@@ -270,6 +270,25 @@ $app->get('/adminshotgun', function() use($app, $status) {
     $app->render('footer.php');
 });
 
+$app->get('/export', function() use($app, $status) {
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    if(!isset($_GET["id"])) {
+        $app->redirect("admin");
+    } else {
+        $id = $_GET["id"];
+    }
+    $desc = new Desc();
+    $desc->select($id);
+    try {
+        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+    } catch(JsonException $e) {
+        $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
+        $app->redirect("admin");
+    }
+
+    $desc->exportCSV();
+});
+
 $app->get('/choiceform', function() use($app, $status) {
     $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["id"])) {

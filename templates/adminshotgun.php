@@ -20,7 +20,7 @@
         <thead>
             <th>Nom du choix</th>
             <th>Prix</th>
-            <th>Place Shotguné</th>
+            <th>Place Shotgunnée</th>
             <th>Place en cours de shotgun</th>
             <th>Place Dispo</th>
             <th>Place Total</th>
@@ -39,6 +39,8 @@
         <?php } ?>
     </table>
     <h2>Outils</h2>
-    En construction [au programme: Export CSV, Envoi de mail aux inscrits].
+    <ul>
+        <li><a href="export?id=<?php echo $shotgun->id; ?>" >Télécharger l'export</a></li>
+    </ul>
 </div>
 </div>

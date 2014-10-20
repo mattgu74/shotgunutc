@@ -171,6 +171,23 @@ class Desc {
     }
 
     /*
+        Export data as CSV
+    */
+    public function exportCSV() {
+        $opts = Option::getAll($this->id);
+        header("Content-type: text/csv");
+        header("Content-Disposition: attachment; filename=file.csv");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        foreach($opts as $opt) {
+            if($opt->status == 'V') {
+                echo $opt->id . "," . $opt->user_login . "," . $opt->user_prenom . "," . $opt->user_nom . "," . $opt->user_mail . "," . $opt->choice_name . "," . $opt->choice_price . "," . $opt->date_creation ."\n";
+            }
+        }
+        exit();
+    }
+
+    /*
         Fill local attributes with data from query
     */
     protected function bind($data) {
