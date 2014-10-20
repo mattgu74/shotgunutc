@@ -95,8 +95,7 @@ class Option {
     protected static function getQbBase() {
         $qb = Db::createQueryBuilder();
         $qb->select('*')
-           ->from(Config::get("db_pref", "shotgun_")."option", "o")
-           ->andFrom(Config::get("db_pref", "shotgun_")."choice", "c")
+           ->from(Config::get("db_pref", "shotgun_")."option", "o", Config::get("db_pref", "shotgun_")."choice", "c")
            ->where('o.fk_choice_id = c.choice_id');
         return $qb;
     }
@@ -212,7 +211,7 @@ class Option {
         $this->date_creation = $data["option_date_creation"];
         $this->date_paiement = $data["option_date_paiement"];
         $this->status = $data["option_status"];
-        
+
         $this->choice_name = $data["choice_name"];
         $this->choice_price = $data["choice_price"];
     }
