@@ -176,7 +176,7 @@ class Desc {
     public function exportCSV() {
         $opts = Option::getAll($this->id);
         header("Content-type: text/csv");
-        header("Content-Disposition: attachment; filename=file.csv");
+        header("Content-Disposition: attachment; filename=".$this->titre.".csv");
         header("Pragma: no-cache");
         header("Expires: 0");
         foreach($opts as $opt) {
