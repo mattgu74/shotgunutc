@@ -39,6 +39,8 @@
         <?php } ?>
     </table>
     <h2>Outils</h2>
-    En construction [au programme: Export CSV, Envoi de mail aux inscrits].
+    <ul>
+        <li><a href="export?id=<?php echo $shotgun->id; ?>" >Télécharger l'export</a></li>
+    </ul>
 </div>
 </div>
