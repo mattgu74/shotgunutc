@@ -25,6 +25,7 @@ use \Shotgunutc\Form;
 use \Shotgunutc\Field;
 use \Shotgunutc\BoolField;
 use \Shotgunutc\TextareaField;
+use \Ginger\Client\GingerClient;
 
 /*
     This class represent a shotgun Description, all parameters needed for each event.
@@ -179,9 +180,12 @@ class Desc {
         header("Content-Disposition: attachment; filename=".$this->titre.".csv");
         header("Pragma: no-cache");
         header("Expires: 0");
+
+        $gingerClient = new GingerClient(Config::get('ginger_key'), Config::get('ginger_server'));
         foreach($opts as $opt) {
             if($opt->status == 'V') {
-                echo $opt->id . "," . $opt->user_login . "," . $opt->user_prenom . "," . $opt->user_nom . "," . $opt->user_mail . "," . $opt->choice_name . "," . $opt->choice_price . "," . $opt->date_creation ."\n";
+                $user = $gingerClient->getUser($opt->user_login);
+                echo $opt->id . "," . $opt->user_login . "," . $opt->user_prenom . "," . $opt->user_nom . "," . $opt->user_mail . "," . $opt->choice_name . "," . $opt->choice_price . "," . $opt->date_creation . "," . $user->badge_uid . "\n";
             }
         }
         exit();
