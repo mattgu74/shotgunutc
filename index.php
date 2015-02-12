@@ -45,7 +45,7 @@ try {
 }
 
 // get payutcClient
-$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array("CURLOPT_PROXY" => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
 
 $status = $payutcClient->getStatus();
 $admin = false;
