@@ -39,12 +39,13 @@ try {
     Config::$conf = Array();
     // Set the only one forced config line, that we have to change manually.
     Config::set('payutc_server', "https://assos.utc.fr/payutc_dev/server");
+    Config::set('proxy', '');
     Config::set('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
     Config::set('title', "ShotgunUTC");
 }
 
 // get payutcClient
-$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array("CURLOPT_PROXY" => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
 
 $status = $payutcClient->getStatus();
 $admin = false;

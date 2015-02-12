@@ -36,6 +36,7 @@ class Config {
 		array("db_name","DB name"),
 		array("db_pref","DB prefix"),
 		array("payutc_server","URL payutc server"),
+		array("proxy","Proxy pour communiquer avec le serveur"),
 		array("payutc_key","clef d'application payutc"),
 		array("ginger_server","URL ginger server"),
 		array("ginger_key","clef d'application ginger"),
