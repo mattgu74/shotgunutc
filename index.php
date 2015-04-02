@@ -28,6 +28,23 @@ use \Ginger\Client\GingerClient;
 use \Payutc\Client\AutoJsonClient;
 use \Payutc\Client\JsonException;
 
+function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
+    if($fun_check and $fun_id == null) {
+         if($payutcClient->isAdmin()) {
+              return True;
+          } else {
+              // raise new JsonException();
+          }
+    } else {
+         $fundations = $payutcClient->getFundations($user, $app);
+         if(in_array($fun_id, $fundations)) {
+             return True;
+         } else {
+               // raise new JsonException();
+         }
+    }
+}
+
 // Settings for cookies
 $sessionPath = parse_url(Config::get('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"), PHP_URL_PATH);
 session_set_cookie_params(0, $sessionPath);
@@ -51,7 +68,8 @@ $status = $payutcClient->getStatus();
 $admin = false;
 if($status->user) {
     try {
-        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
+        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
+        checkRight($payutcClient, true, false, true, null);
         $admin = true;
     } catch(JsonException $e) {
         $admin = false;
@@ -181,7 +199,8 @@ $app->get('/shotgunform', function() use($app, $admin, $status) {
         $fun_id = $_GET["fun_id"];
     }  
     try {
-        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
+        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
+        checkRight($payutcClient, true, false, true, $fun_id);
     } catch(JsonException $e) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
@@ -209,7 +228,8 @@ $app->post('/shotgunform', function() use($app, $admin, $status) {
         $fun_id = $_GET["fun_id"];
     }  
     try {
-        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
+        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
+        checkRight($payutcClient, true, false, true, $fun_id);
     } catch(JsonException $e) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
@@ -258,7 +278,8 @@ $app->get('/adminshotgun', function() use($app, $status) {
     $desc = new Desc();
     $desc->select($id);
     try {
-        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        checkRight($payutcClient, true, false, true, $desc->payutc_fun_id);
     } catch(JsonException $e) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
@@ -281,7 +302,8 @@ $app->get('/export', function() use($app, $status) {
     $desc = new Desc();
     $desc->select($id);
     try {
-        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        checkRight($payutcClient, true, false, true, $desc->payutc_fun_id);
     } catch(JsonException $e) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
@@ -301,7 +323,8 @@ $app->get('/choiceform', function() use($app, $status) {
     $desc = new Desc();
     $desc->select($id);
     try {
-        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        checkRight($payutcClient, true, false, true, $desc->payutc_fun_id);
     } catch(JsonException $e) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
@@ -333,7 +356,8 @@ $app->post('/choiceform', function() use($app, $admin, $status) {
     $desc = new Desc();
     $desc->select($id);
     try {
-        $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$desc->payutc_fun_id));
+        checkRight($payutcClient, true, false, true, $desc->payutc_fun_id);
     } catch(JsonException $e) {
         $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
