@@ -117,7 +117,7 @@ class Option {
                 $message = "Bonjour {$this->user_prenom} {$this->user_nom},<br />
                 <br />
                 Ce mail vient confirmer que tu as bien acheté une place pour :<br />
-                {$desc->titre} - {$choice->name}<br />
+                {$choice->name}<br />
                 <br />
                 Ton n° de reservation est le : {$this->id}<br />
                 <br />

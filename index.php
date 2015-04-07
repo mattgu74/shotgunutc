@@ -28,22 +28,24 @@ use \Ginger\Client\GingerClient;
 use \Payutc\Client\AutoJsonClient;
 use \Payutc\Client\JsonException;
 
+
 function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
     if($fun_check and $fun_id == null) {
          if($payutcClient->isAdmin()) {
-              return True;
+              return true;
           } else {
               // raise new JsonException();
           }
     } else {
-         $fundations = $payutcClient->getFundations($user, $app);
+         $fundations = $payutcClient->getFundations(array("user"=> $user, "app" => $app));
          if(in_array($fun_id, $fundations)) {
-             return True;
+             return true;
          } else {
                // raise new JsonException();
          }
     }
 }
+
 
 // Settings for cookies
 $sessionPath = parse_url(Config::get('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"), PHP_URL_PATH);
@@ -56,15 +58,15 @@ try {
     Config::$conf = Array();
     // Set the only one forced config line, that we have to change manually.
     Config::set('payutc_server', "https://assos.utc.fr/payutc_dev/server");
-    Config::set('proxy', '');
     Config::set('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
     Config::set('title', "ShotgunUTC");
 }
 
 // get payutcClient
-$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+$payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
 
 $status = $payutcClient->getStatus();
+
 $admin = false;
 if($status->user) {
     try {
@@ -136,7 +138,7 @@ $app->get('/shotgun', function() use($app) {
         "desc" => $desc,
         "username" => isset($_SESSION['username']) ? $_SESSION['username'] : null,
         "user" => isset($_SESSION['username']) ? $gingerClient->getUser($_SESSION["username"]) : null,
-        "payutcClient" => new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "")
+        "payutcClient" => new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "")
     ));
     $app->render('footer.php');
 });
@@ -144,7 +146,7 @@ $app->get('/shotgun', function() use($app) {
 // Show a specific shotgun page
 $app->get('/makeshotgun', function() use($app) {
     $gingerClient = new GingerClient(Config::get('ginger_key'), Config::get('ginger_server'));
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
 
     if(!isset($_GET["id"]) || !isset($_GET["choice_id"])) {
         $app->redirect("index");
@@ -170,7 +172,7 @@ $app->get('/makeshotgun', function() use($app) {
 // REmove a choice
 $app->get('/cancel', function() use($app) {
     $gingerClient = new GingerClient(Config::get('ginger_key'), Config::get('ginger_server'));
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
 
     if(!isset($_GET["id"])) {
         $app->redirect("index");
@@ -192,7 +194,7 @@ $app->get('/cancel', function() use($app) {
 */
 
 $app->get('/shotgunform', function() use($app, $admin, $status) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["fun_id"])) {
         $app->redirect("admin");
     } else {
@@ -221,7 +223,7 @@ $app->get('/shotgunform', function() use($app, $admin, $status) {
 });
 
 $app->post('/shotgunform', function() use($app, $admin, $status) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["fun_id"])) {
         $app->redirect("admin");
     } else {
@@ -269,7 +271,7 @@ $app->post('/shotgunform', function() use($app, $admin, $status) {
 });
 
 $app->get('/adminshotgun', function() use($app, $status) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
     } else {
@@ -293,7 +295,7 @@ $app->get('/adminshotgun', function() use($app, $status) {
 });
 
 $app->get('/export', function() use($app, $status) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
     } else {
@@ -313,7 +315,7 @@ $app->get('/export', function() use($app, $status) {
 });
 
 $app->get('/choiceform', function() use($app, $status) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
     } else {
@@ -347,7 +349,7 @@ $app->get('/choiceform', function() use($app, $status) {
 });
 
 $app->post('/choiceform', function() use($app, $admin, $status) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
     } else {
@@ -376,7 +378,6 @@ $app->post('/choiceform', function() use($app, $admin, $status) {
                 "prix" => $choice->price,
                 "stock" => $choice->stock,
                 "alcool" => 0,
-                "image" => null,
                 "fun_id" => $desc->payutc_fun_id));
         $choice->update();
     } else {
@@ -391,7 +392,6 @@ $app->post('/choiceform', function() use($app, $admin, $status) {
                 "prix" => $choice->price,
                 "stock" => $choice->stock,
                 "alcool" => 0,
-                "image" => null,
                 "fun_id" => $desc->payutc_fun_id));
             if(isset($ret->success)) {
                 $choice->payutc_art_id = $ret->success;
@@ -412,7 +412,7 @@ $app->post('/choiceform', function() use($app, $admin, $status) {
 
 // Admin panel, welcome page
 $app->get('/admin', function() use($app, $admin, $status) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "GESARTICLE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if(!$status->user) {
         $app->redirect("loginpayutc?goto=admin");
     }
@@ -532,7 +532,7 @@ $app->post('/install', function() use($app, $payutcClient, $admin) {
 
 // Declare payutc app
 $app->get('/installpayutc', function() use($app, $payutcClient, $admin) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "KEY", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "KEY", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     if($admin) {
         $app = $payutcClient->registerApplication(
             array(
@@ -546,7 +546,7 @@ $app->get('/installpayutc', function() use($app, $payutcClient, $admin) {
 
 
 $app->get('/cron', function() use($app, $payutcClient, $admin) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     $options = Option::getAll();
     foreach($options as $opt) {
         if($opt->status == 'W') {
@@ -559,7 +559,7 @@ $app->get('/cron', function() use($app, $payutcClient, $admin) {
 });
 
 $app->get('/callback', function() use($app, $payutcClient, $admin) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(CURLOPT_PROXY => Config::get('proxy')), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "WEBSALE", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
     $options = Option::getAll();
     foreach($options as $opt) {
         $desc = new Desc($opt->fk_desc_id);
