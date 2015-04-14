@@ -41,6 +41,7 @@ class Config {
 		array("ginger_server","URL ginger server"),
 		array("ginger_key","clef d'application ginger"),
 		array("namespace","Session namespace"),
+		array("system_id", "Nemopay system_id"),
 		);
 
 	public static function init() {
