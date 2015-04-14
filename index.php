@@ -59,7 +59,6 @@ try {
     // Set the only one forced config line, that we have to change manually.
     Config::set('payutc_server', "https://assos.utc.fr/payutc_dev/server");
     Config::set('proxy', '');
-    Config::set('system_id', 'default');
     Config::set('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
     Config::set('title', "ShotgunUTC");
 }
@@ -72,8 +71,8 @@ function getPayutcClient($service) {
         array(CURLOPT_PROXY => Config::get('proxy')),
         "Payutc Json PHP Client",
         isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "",
-        Config::get('system_id'),
-        Config::get('payutc_key'));
+        Config::get('system_id', null),
+        Config::get('payutc_key', null));
 }
 $payutcClient = getPayutcClient("WEBSALE");
 
