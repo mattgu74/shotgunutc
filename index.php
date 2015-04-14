@@ -31,21 +31,21 @@ use \Payutc\Client\JsonException;
 
 function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
     if($fun_check and $fun_id == null) {
-         if($payutcClient->isAdmin()) {
-              return true;
-          } else {
-              // raise new JsonException();
-          }
+        if($payutcClient->isAdmin()) {
+            return true;
+        } else {
+            throw new JsonException("L'utilisateur n'est pas admin.");
+        }
     } else {
-         $fundations = $payutcClient->getFundations(array("user"=> $user, "app" => $app));
-         if(in_array($fun_id, $fundations)) {
-             return true;
-         } else {
-               // raise new JsonException();
-         }
+        $fundations = $payutcClient->getFundations(array("user"=> $user, "app" => $app));
+        if(in_array($fun_id, $fundations)) {
+            return true;
+        } else {
+            throw new JsonException("L'utilisateur n'a pas les droits sur cette association.");
+            
+        }
     }
 }
-
 
 // Settings for cookies
 $sessionPath = parse_url(Config::get('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}"), PHP_URL_PATH);
