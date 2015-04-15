@@ -57,10 +57,11 @@ try {
 } catch(\Exception $e) {
     Config::$conf = Array();
     // Set the only one forced config line, that we have to change manually.
-    Config::set('payutc_server', "https://assos.utc.fr/payutc_dev/server");
+    Config::set('payutc_server', "https://api.nemopay.net/services");
     Config::set('proxy', '');
     Config::set('self_url', "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
     Config::set('title', "ShotgunUTC");
+    Config::set('system_id', '');
 }
 
 // get payutcClient
@@ -71,12 +72,16 @@ function getPayutcClient($service) {
         array(CURLOPT_PROXY => Config::get('proxy')),
         "Payutc Json PHP Client",
         isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "",
-        Config::get('system_id', null),
-        Config::get('payutc_key', null));
+        Config::get('system_id', ''),
+        Config::get('payutc_key', ''));
 }
 $payutcClient = getPayutcClient("WEBSALE");
 
-$status = $payutcClient->getStatus();
+try {
+    $status = $payutcClient->getStatus();
+} catch(Exception $e) {
+    $status = null;
+}
 
 $admin = false;
 if($status->user) {
@@ -538,7 +543,7 @@ $app->post('/install', function() use($app, $payutcClient, $admin) {
 
 // Declare payutc app
 $app->get('/installpayutc', function() use($app, $payutcClient, $admin) {
-    $payutcClient = new AutoJsonClient(Config::get('payutc_server'), "KEY", array(), "Payutc Json PHP Client", isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "");
+    $payutcClient = getPayutcClient('KEY');
     if($admin) {
         $app = $payutcClient->registerApplication(
             array(
