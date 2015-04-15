@@ -471,7 +471,9 @@ $app->get('/loginpayutc', function() use($app, $payutcClient) {
         $casUrl = $payutcClient->getCasUrl()."login?service=".urlencode($service);
         $app->response->redirect($casUrl, 303);
     } else {
-        $user = $payutcClient->loginCas(array("ticket" => $_GET["ticket"], "service" => $_SESSION['service']));
+        $user = $payutcClient->loginCas2(array("ticket" => $_GET["ticket"], "service" => $_SESSION['service']));
+        print_r($user);
+        die();
         $_SESSION['payutc_cookie'] = $payutcClient->cookie;
         $_SESSION['username'] = $user;
         $app->response->redirect($_GET['goto'], 303);
