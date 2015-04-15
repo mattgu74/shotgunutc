@@ -71,7 +71,7 @@ function getPayutcClient($service) {
         $service,
         array(CURLOPT_PROXY => Config::get('proxy')),
         "Payutc Json PHP Client",
-        isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "",
+        isset($_SESSION['sessionid']) ? "sessionid=".$_SESSION['sessionid'] : "",
         Config::get('system_id', ''),
         Config::get('payutc_key', ''));
 }
@@ -79,6 +79,9 @@ $payutcClient = getPayutcClient("WEBSALE");
 
 try {
     $status = $payutcClient->getStatus();
+    print_r($status);
+    print_r($_SESSION);
+    die();
 } catch(Exception $e) {
     $status = null;
 }
@@ -471,9 +474,9 @@ $app->get('/loginpayutc', function() use($app, $payutcClient) {
         $casUrl = $payutcClient->getCasUrl()."login?service=".urlencode($service);
         $app->response->redirect($casUrl, 303);
     } else {
-        $user = $payutcClient->loginCas(array("ticket" => $_GET["ticket"], "service" => $_SESSION['service']));
-        $_SESSION['payutc_cookie'] = $payutcClient->cookie;
-        $_SESSION['username'] = $user;
+        $user = $payutcClient->loginCas2(array("ticket" => $_GET["ticket"], "service" => $_SESSION['service']));
+        $_SESSION['sessionid'] = $result->sessionid;
+        $_SESSION['username'] = $result->username;
         $app->response->redirect($_GET['goto'], 303);
     }
 });
