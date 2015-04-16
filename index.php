@@ -199,7 +199,7 @@ $app->get('/shotgunform', function() use($app, $admin) {
         // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
         checkRight($payutcClient, true, false, true, $fun_id);
     } catch(JsonException $e) {
-        $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
+        $app->flash('info', 'Vous n\'avez pas les droits suffisants....'.print_r($e, true));
         $app->redirect("admin");
     }
     if(isset($_GET["desc_id"])) {
