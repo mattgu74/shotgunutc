@@ -34,14 +34,14 @@ function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
         if($payutcClient->isAdmin()) {
             return true;
         } else {
-            throw new JsonException("L'utilisateur n'est pas admin.");
+            throw new JsonException("L'utilisateur n'est pas admin.", 403);
         }
     } else {
         $fundations = $payutcClient->getFundations(array("user"=> $user, "app" => $app));
         if(in_array($fun_id, $fundations)) {
             return true;
         } else {
-            throw new JsonException("L'utilisateur n'a pas les droits sur cette association.");
+            throw new JsonException("L'utilisateur n'a pas les droits sur cette association.", 403);
             
         }
     }
@@ -71,7 +71,7 @@ function getPayutcClient($service) {
         $service,
         array(CURLOPT_PROXY => Config::get('proxy')),
         "Payutc Json PHP Client",
-        isset($_SESSION['sessionid']) ? "sessionid=".$_SESSION['sessionid'] : "",
+        isset($_SESSION['payutc_cookie']) ? $_SESSION['payutc_cookie'] : "",
         Config::get('system_id', ''),
         Config::get('payutc_key', ''));
 }
@@ -79,9 +79,6 @@ $payutcClient = getPayutcClient("WEBSALE");
 
 try {
     $status = $payutcClient->getStatus();
-    print_r($status);
-    print_r($_SESSION);
-    die();
 } catch(Exception $e) {
     $status = null;
 }
@@ -460,7 +457,7 @@ $app->get('/login', function() use($app, $payutcClient) {
     } else {
         $cas = new Cas($payutcClient->getCasUrl());
         $user = $cas->authenticate($_GET["ticket"], $_SESSION['service']);
-        $_SESSION['payutc_cookie'] = $payutcClient->cookie;
+        $_SESSION['payutc_cookie'] = $payutcClient->cookies;
         $_SESSION['username'] = $user;
         $app->response->redirect(isset($_GET['goto']) ? $_GET['goto'] : "index", 303);
     }
@@ -474,9 +471,10 @@ $app->get('/loginpayutc', function() use($app, $payutcClient) {
         $casUrl = $payutcClient->getCasUrl()."login?service=".urlencode($service);
         $app->response->redirect($casUrl, 303);
     } else {
-        $user = $payutcClient->loginCas2(array("ticket" => $_GET["ticket"], "service" => $_SESSION['service']));
+        $result = $payutcClient->loginCas2(array("ticket" => $_GET["ticket"], "service" => $_SESSION['service']));
         $_SESSION['sessionid'] = $result->sessionid;
         $_SESSION['username'] = $result->username;
+	$_SESSION['payutc_cookie'] = $payutcClient->cookies;
         $app->response->redirect($_GET['goto'], 303);
     }
 });
@@ -493,6 +491,7 @@ $app->get('/logout', function() use($app, $payutcClient) {
         session_destroy();
         $app->response->redirect($casUrl, 303);    
     } else {
+        session_destroy();
         $app->response->redirect(isset($_GET['goto']) ? $_GET['goto'] : "index", 303);
     }
 });
@@ -514,7 +513,7 @@ $app->get('/getsql', function() use($app, $payutcClient, $admin, $status) {
     } else {
         $app->render('install_not_admin.php', array(
             "status" => $status,
-            "debug" => $payutcClient->cookie));
+            "debug" => $payutcClient->cookies));
     }
     $app->render('footer.php');
 });
@@ -529,7 +528,7 @@ $app->get('/install', function() use($app, $payutcClient, $admin, $status) {
     } else {
         $app->render('install_not_admin.php', array(
             "status" => $status,
-            "debug" => $payutcClient->cookie));
+            "debug" => $payutcClient->cookies));
     }
     $app->render('footer.php');
 });
@@ -541,21 +540,21 @@ $app->post('/install', function() use($app, $payutcClient, $admin) {
             Config::set($item[0], $_POST[$item[0]]);
         }
     }
-    $app->redirect('install');
+    $app->response->redirect('install');
 });
 
 // Declare payutc app
 $app->get('/installpayutc', function() use($app, $payutcClient, $admin) {
     $payutcClient = getPayutcClient('KEY');
     if($admin) {
-        $app = $payutcClient->registerApplication(
+        $appli = $payutcClient->registerApplication(
             array(
                 "app_url"  =>Config::get('self_url'), 
                 "app_name" =>Config::get('title')." déclaré par {$_SESSION['username']}", 
                 "app_desc" =>"Microbilletterie"));
-        Config::set('payutc_key', $app->app_key);
+        Config::set('payutc_key', $appli->app_key);
     }
-    $app->redirect("install");
+    $app->response->redirect("install");
 });
 
 
