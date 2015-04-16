@@ -367,11 +367,23 @@ $app->post('/choiceform', function() use($app, $admin) {
         $choice->select($choice_id);
         $form = $choice->getForm("Modification d'un choix", "choiceform?id=".$id."&choice_id=".$choice_id, "Modifier");
         $form->load();
+        // article cotisant
         $payutcClient->setProduct(array(
-                "obj_id" => $choice->payutc_art_id,
+                "obj_id" => $choice->payutc_art_idC,
                 "name" => $desc->titre." ".$choice->name, 
                 "parent" =>  $desc->payutc_cat_id,
-                "prix" => $choice->price,
+                "prix" => $choice->priceC,
+                "stock" => $choice->stock,
+                "alcool" => 0,
+                "cotisant" => False,
+                "fun_id" => $desc->payutc_fun_id));
+
+        // article non cotisant
+        $payutcClient->setProduct(array(
+                "obj_id" => $choice->payutc_art_idNC,
+                "name" => $desc->titre." ".$choice->name, 
+                "parent" =>  $desc->payutc_cat_id,
+                "prix" => $choice->priceNC,
                 "stock" => $choice->stock,
                 "alcool" => 0,
                 "cotisant" => False,
@@ -401,6 +413,7 @@ $app->post('/choiceform', function() use($app, $admin) {
                 "prix" => $choice->priceNC,
                 "stock" => $choice->stock,
                 "alcool" => 0,
+                "cotisant" => False,
                 "fun_id" => $desc->payutc_fun_id));
             if(isset($ret->success)) {
                 $choice->payutc_art_idNC = $ret->success;
