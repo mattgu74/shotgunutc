@@ -37,7 +37,7 @@ class Desc {
     public $titre;
     public $desc;
     public $is_public;
-    public $open_non_cotisant;
+    public $quota;
     public $debut;
     public $fin;
     public $payutc_fun_id;
@@ -64,7 +64,7 @@ class Desc {
         $form->addItem(new Field("Titre", "titre", $this->titre, "Titre du shotgun"));
         $form->addItem(new TextareaField("Description", "desc", $this->desc, "Description du shotgun"));
         $form->addItem(new BoolField("Evenement public", "is_public", $this->is_public, "Indique si l'événement est publiquement afficher sur le site de shotgunutc."));
-        $form->addItem(new BoolField("Ouvert au non cotisant", "open_non_cotisant", $this->open_non_cotisant, "Est-ce que l'événement est ouvert au non cotisant ?"));
+        $form->addItem(new Field("Nombre max de places", "quota", $this->quota, "Combien de ventes au maximum ?", "number"));
         $form->addItem(new Field("Debut", "debut", $this->debut, "Debut du shotgun", "datetime"));
         $form->addItem(new Field("Fin", "fin", $this->fin, "Fin du shotgun", "datetime"));
         return $form;
@@ -93,7 +93,7 @@ class Desc {
                 "desc_titre" => $this->titre,
                 "desc_desc" => $this->desc,
                 "desc_is_public" => $this->is_public,
-                "desc_open_non_cotisant" => $this->open_non_cotisant,
+                "desc_quota" => $this->quota,
                 "desc_debut" => $this->debut,
                 "desc_fin" => $this->fin,
                 "payutc_fun_id" => $this->payutc_fun_id, 
@@ -115,8 +115,8 @@ class Desc {
             ->setParameter('desc', $this->desc)
             ->set('d.desc_is_public', ':public')
             ->setParameter('public', $this->is_public)
-            ->set('d.desc_open_non_cotisant', ':cotisant')
-            ->setParameter('cotisant', $this->open_non_cotisant)
+            ->set('d.desc_quota', ':quota')
+            ->setParameter('quota', $this->quota)
             ->set('d.desc_debut', ':debut')
             ->setParameter('debut', $this->debut)
             ->set('d.desc_fin', ':fin')
@@ -199,7 +199,7 @@ class Desc {
         $this->titre = $data["desc_titre"];
         $this->desc = $data["desc_desc"];
         $this->is_public = $data["desc_is_public"];
-        $this->open_non_cotisant = $data["desc_open_non_cotisant"];
+        $this->quota = $data["desc_quota"];
         $this->debut = $data["desc_debut"];
         $this->fin = $data["desc_fin"];
         $this->payutc_fun_id = $data["payutc_fun_id"];
@@ -215,7 +215,7 @@ class Desc {
               `desc_titre` varchar(50) NOT NULL,
               `desc_desc` varchar(250) NOT NULL,
               `desc_is_public` int(1) NOT NULL,
-              `desc_open_non_cotisant` int(1) NOT NULL,
+              `desc_quota` int(10) NOT NULL,
               `desc_debut` datetime NOT NULL,
               `desc_fin` datetime NOT NULL,
               `payutc_fun_id` int(4) NOT NULL,

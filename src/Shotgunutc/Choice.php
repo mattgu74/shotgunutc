@@ -68,7 +68,14 @@ class Choice {
             case 'A':
                 $qb->andWhere("option_status = 'V' or option_status = 'W'");
                 $r = $qb->execute()->fetch();
-                return $this->stock - $r["total"];
+                $descr = new Desc($this->descId);
+                $qbr = Db::createQueryBuilder();
+                $qbr->select('count(*) as total')
+                   ->from(Config::get("db_pref", "shotgun_")."option", "o")
+                   ->where('fk_desc_id = :desc_id')
+                   ->setParameter('desc_id', $this->descId);
+                $rr = $qb->execute()->fetch();
+                return min($this->stock - $r["total"], $descr->quota - $rr["total"]);
                 break;
             case 'V':
                 $qb->andWhere("option_status = 'V'");
@@ -105,7 +112,8 @@ class Choice {
                 "choice_priceNC" => $this->priceNC,
                 "choice_stock" => $this->stock,
                 "fk_desc_id" => $this->descId,
-                "payutc_art_id" => $this->payutc_art_id
+                "payutc_art_idC" => $this->payutc_art_idC,
+                "payutc_art_idNC" => $this->payutc_art_idNC,
             ));
         return $conn->lastInsertId();
     }
@@ -205,8 +213,15 @@ class Choice {
         }
 
         // Let's play !
+        // cotisation
+        if($user->is_cotisant != 1) {
+            $art_id = $this->payutc_art_idNC;
+        } else {
+            $art_id = $this->payutc_art_idC;
+        }
+
         $vente = $payutcClient->createTransaction(array(
-            "items" => json_encode(array(array($this->payutc_art_id, 1))),
+            "items" => json_encode(array(array($art_id, 1))),
             "fun_id" => $desc->payutc_fun_id,
             "mail" => $user->mail,
             "return_url" => Config::get("self_url")."shotgun?id=".$desc->id,
@@ -239,7 +254,8 @@ class Choice {
         $this->price = $data["choice_price"];
         $this->stock = $data["choice_stock"];
         $this->descId = $data["fk_desc_id"];
-        $this->payutc_art_id = $data["payutc_art_id"];
+        $this->payutc_art_idC = $data["payutc_art_idC"];
+        $this->payutc_art_idNC = $data["payutc_art_idNC"];
     }
 
     /*
@@ -249,10 +265,12 @@ class Choice {
         $query = "CREATE TABLE IF NOT EXISTS `".Config::get("db_pref", "shotgun_")."choice` (
               `choice_id` int(4) NOT NULL AUTO_INCREMENT,
               `choice_name` varchar(50) NOT NULL,
-              `choice_price` int(5) NOT NULL,
+              `choice_priceC` int(5) NOT NULL,
+              `choice_priceNC` int(5) NOT NULL,
               `choice_stock` int(5) NOT NULL,
               `fk_desc_id` int(4) NOT NULL,
-              `payutc_art_id` int(4) NOT NULL,
+              `payutc_art_idC` int(11) NOT NULL,
+              `payutc_art_idNC` int(11) NOT NULL,
               PRIMARY KEY (`choice_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 ";

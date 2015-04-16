@@ -13,10 +13,6 @@ use \Shotgunutc\Option;
     $has_place = false;
     if(!$username) {
         echo '<div class="alert alert-info">Avant toute chose tu dois te connecter ! <a class="btn btn-primary" href="login">Connexion</a></div>';
-    } else if($desc->open_non_cotisant == 0 && $user->is_cotisant != 1) {
-        echo '<div class="alert alert-info">Cet événement n\'est pas ouvert aux non-cotisants.
-        Si tu veux prendre ta place, tu dois d\'abord aller cotiser
-        <a class="btn btn-primary" href="https://assos.utc.fr/bde/bdecotiz/">BDE COTIZ</a></div>';
     } else {
         $opt = Option::getUser($user->login, $desc->id);
         if(count($opt) > 0) {

@@ -76,22 +76,7 @@ function getPayutcClient($service) {
 }
 $payutcClient = getPayutcClient("WEBSALE");
 
-try {
-    $status = $payutcClient->getStatus();
-} catch(Exception $e) {
-    $status = null;
-}
-
 $admin = false;
-if($status->user) {
-    try {
-        // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>null));
-        checkRight($payutcClient, true, false, true, null);
-        $admin = true;
-    } catch(JsonException $e) {
-        $admin = false;
-    }
-}
 
 $app = new \Slim\Slim();
 
@@ -203,7 +188,7 @@ $app->get('/cancel', function() use($app) {
     ADMIN ZONE
 */
 
-$app->get('/shotgunform', function() use($app, $admin, $status) {
+$app->get('/shotgunform', function() use($app, $admin) {
     $payutcClient = getPayutcClient("GESARTICLE");
     if(!isset($_GET["fun_id"])) {
         $app->redirect("admin");
@@ -232,7 +217,7 @@ $app->get('/shotgunform', function() use($app, $admin, $status) {
     $app->render('footer.php');
 });
 
-$app->post('/shotgunform', function() use($app, $admin, $status) {
+$app->post('/shotgunform', function() use($app, $admin) {
     $payutcClient = getPayutcClient("GESARTICLE");
     if(!isset($_GET["fun_id"])) {
         $app->redirect("admin");
@@ -280,7 +265,7 @@ $app->post('/shotgunform', function() use($app, $admin, $status) {
     $app->redirect("adminshotgun?id=".$desc_id);
 });
 
-$app->get('/adminshotgun', function() use($app, $status) {
+$app->get('/adminshotgun', function() use($app) {
     $payutcClient = getPayutcClient("GESARTICLE");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
@@ -304,7 +289,7 @@ $app->get('/adminshotgun', function() use($app, $status) {
     $app->render('footer.php');
 });
 
-$app->get('/export', function() use($app, $status) {
+$app->get('/export', function() use($app) {
     $payutcClient = getPayutcClient("GESARTICLE");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
@@ -324,7 +309,7 @@ $app->get('/export', function() use($app, $status) {
     $desc->exportCSV();
 });
 
-$app->get('/choiceform', function() use($app, $status) {
+$app->get('/choiceform', function() use($app) {
     $payutcClient = getPayutcClient("GESARTICLE");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
@@ -358,7 +343,7 @@ $app->get('/choiceform', function() use($app, $status) {
     $app->render('footer.php');
 });
 
-$app->post('/choiceform', function() use($app, $admin, $status) {
+$app->post('/choiceform', function() use($app, $admin) {
     $payutcClient = getPayutcClient("GESARTICLE");
     if(!isset($_GET["id"])) {
         $app->redirect("admin");
@@ -421,8 +406,13 @@ $app->post('/choiceform', function() use($app, $admin, $status) {
 });
 
 // Admin panel, welcome page
-$app->get('/admin', function() use($app, $admin, $status) {
+$app->get('/admin', function() use($app, $admin) {
     $payutcClient = getPayutcClient("GESARTICLE");
+    try {
+        $status = $payutcClient->getStatus();
+    } catch(Exception $e) {
+        $status = null;
+    }
     if(!$status->user) {
         $app->redirect("loginpayutc?goto=admin");
     }
@@ -499,7 +489,7 @@ $app->get('/logout', function() use($app, $payutcClient) {
     Installation/Configuration zone
 */
 
-$app->get('/getsql', function() use($app, $payutcClient, $admin, $status) {
+$app->get('/getsql', function() use($app, $payutcClient, $admin) {
     // Remove flash (we are on the good page to install/configure system)
     $app->flashNow('info', null);
     $app->render('header.php', array());
@@ -511,14 +501,14 @@ $app->get('/getsql', function() use($app, $payutcClient, $admin, $status) {
             ));
     } else {
         $app->render('install_not_admin.php', array(
-            "status" => $status,
+            "status" => null,
             "debug" => $payutcClient->cookies));
     }
     $app->render('footer.php');
 });
 
 // Install options
-$app->get('/install', function() use($app, $payutcClient, $admin, $status) {
+$app->get('/install', function() use($app, $payutcClient, $admin) {
     // Remove flash (we are on the good page to install/configure system)
     $app->flashNow('info', null);
     $app->render('header.php', array());
@@ -526,7 +516,7 @@ $app->get('/install', function() use($app, $payutcClient, $admin, $status) {
         $app->render('install.php', array());
     } else {
         $app->render('install_not_admin.php', array(
-            "status" => $status,
+            "status" => null,
             "debug" => $payutcClient->cookies));
     }
     $app->render('footer.php');
