@@ -34,7 +34,7 @@ function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
         if($payutcClient->isAdmin()) {
             return true;
         } else {
-            throw new JsonException("L'utilisateur n'est pas admin.", 403);
+            //throw new JsonException("L'utilisateur n'est pas admin.", 403);
         }
     } else {
         $fundations = $payutcClient->getFundations(array("user"=> $user, "app" => $app));
@@ -42,7 +42,6 @@ function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
             return true;
         } else {
             throw new JsonException("L'utilisateur n'a pas les droits sur cette association.", 403);
-            
         }
     }
 }
