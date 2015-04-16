@@ -75,7 +75,7 @@ class Choice {
                    ->from(Config::get("db_pref", "shotgun_")."option", "o")
                    ->where('fk_desc_id = :desc_id')
                    ->setParameter('desc_id', $this->descId);
-                $rr = $qb->execute()->fetch();
+                $rr = $qbr->execute()->fetch();
                 print_r($r); print_r($rr);
                 return min($this->stock - $r["total"], $descr->quota - $rr["total"]);
                 break;
