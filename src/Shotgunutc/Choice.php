@@ -252,7 +252,8 @@ class Choice {
     protected function bind($data) {
         $this->id = $data["choice_id"];
         $this->name = $data["choice_name"];
-        $this->price = $data["choice_price"];
+        $this->priceC = $data["choice_priceC"];
+        $this->priceNC = $data["choice_priceNC"];
         $this->stock = $data["choice_stock"];
         $this->descId = $data["fk_desc_id"];
         $this->payutc_art_idC = $data["payutc_art_idC"];
