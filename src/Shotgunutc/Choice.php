@@ -32,7 +32,8 @@ class Choice {
     public $id = null;
     public $descId;
     public $name;
-    public $price;
+    public $priceC;
+    public $priceNC;
     public $stock;
 
     public function __construct($descId=null, $name=null, $price=null, $stock=null) {
@@ -50,8 +51,8 @@ class Choice {
         $form->action = $action;
         $form->submit = $submit;
         $form->addItem(new Field("Nom", "name", $this->name, "Nom du choix"));
-        $form->addItem(new Field("Prix cotisant", "priceC", $this->price, "Prix du choix pour les cotisants BDE", "euro"));
-        $form->addItem(new Field("Prix non cotisant", "priceNC", $this->price, "Prix du choix pour les non cotisants BDE", "euro"));
+        $form->addItem(new Field("Prix cotisant", "priceC", $this->priceC, "Prix du choix pour les cotisants BDE", "euro"));
+        $form->addItem(new Field("Prix non cotisant", "priceNC", $this->priceNC, "Prix du choix pour les non cotisants BDE", "euro"));
         $form->addItem(new Field("Stock", "stock", $this->stock, "Nombre de place", "number"));
         return $form;
     }
