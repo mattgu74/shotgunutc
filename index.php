@@ -38,11 +38,12 @@ function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
         }
     } else {
         $fundations = $payutcClient->getFundations(array("user"=> $user, "app" => $app));
-        if(in_array($fun_id, $fundations)) {
-            return true;
-        } else {
-            throw new JsonException("L'utilisateur n'a pas les droits sur cette association.", 403);
+        foreach($fundations as $fundation) {
+            if($fundation['fun_id'] == $fun_id) {
+                return true;
+            }
         }
+        throw new JsonException("L'utilisateur n'a pas les droits sur cette association.", 403);
     }
 }
 
@@ -199,7 +200,7 @@ $app->get('/shotgunform', function() use($app, $admin) {
         // $payutcClient->checkRight(array("user">true, "app"=>false, "fun_check"=>true, "fun_id"=>$fun_id));
         checkRight($payutcClient, true, false, true, $fun_id);
     } catch(JsonException $e) {
-        $app->flash('info', 'Vous n\'avez pas les droits suffisants....'.print_r($e, true));
+        $app->flash('info', 'Vous n\'avez pas les droits suffisants.');
         $app->redirect("admin");
     }
     if(isset($_GET["desc_id"])) {
