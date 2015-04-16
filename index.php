@@ -381,16 +381,27 @@ $app->post('/choiceform', function() use($app, $admin) {
         $form = $choice->getForm("Création d'un choix", "addchoice?id=".$id, "Ajouter");
         $form->load();
         try {
-            // Création de l'article dans payutc
+            // Création de l'article cotisant dans payutc
             $ret = $payutcClient->setProduct(array(
                 "name" => $desc->titre." ".$choice->name, 
                 "parent" =>  $desc->payutc_cat_id,
-                "prix" => $choice->price,
+                "prix" => $choice->priceC,
                 "stock" => $choice->stock,
                 "alcool" => 0,
                 "fun_id" => $desc->payutc_fun_id));
             if(isset($ret->success)) {
-                $choice->payutc_art_id = $ret->success;
+                $choice->payutc_art_idC = $ret->success;
+            }
+            // Création de l'article non cotisant dans payutc
+            $ret = $payutcClient->setProduct(array(
+                "name" => $desc->titre." ".$choice->name, 
+                "parent" =>  $desc->payutc_cat_id,
+                "prix" => $choice->priceNC,
+                "stock" => $choice->stock,
+                "alcool" => 0,
+                "fun_id" => $desc->payutc_fun_id));
+            if(isset($ret->success)) {
+                $choice->payutc_art_idNC = $ret->success;
             }
             $choice->insert();
         } catch (\Exception $e) {
