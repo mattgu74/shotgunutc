@@ -10,7 +10,7 @@
     <strong>Titre du shotgun : </strong><?php echo $shotgun->titre; ?><br />
     <strong>Description du shotgun : </strong><br /><?php echo $shotgun->desc; ?><br />
     <strong>Shotgun public : </strong><?php echo $shotgun->is_public ? "oui" : "non"; ?><br />
-    <strong>Shotgun ouvert au non cotisant : </strong><?php echo $shotgun->open_non_cotisant ? "oui" : "non"; ?><br />
+    <strong>Quota : </strong><?php echo $shotgun->quota; ?><br />
     <strong>Ouverture des ventes : </strong><?php echo $shotgun->debut; ?><br />
     <strong>Fermeture des ventes : </strong><?php echo $shotgun->fin; ?><br />
 
