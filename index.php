@@ -254,7 +254,7 @@ $app->post('/shotgunform', function() use($app, $admin) {
             }
             $desc_id = $desc->insert();
         } catch (\Exception $e) {
-            $app->flashNow('info', "Une erreur est survenu, la création du shotgun à échoué. => {$e->getMessage()}..." . print_r($e, true));
+            $app->flashNow('info', "Une erreur est survenu, la création du shotgun à échoué. => {$e->getMessage()}");
             $app->render('header.php', array());
             $app->render('form.php', array(
                 "form" => $form
@@ -405,7 +405,7 @@ $app->post('/choiceform', function() use($app, $admin) {
             }
             $choice->insert();
         } catch (\Exception $e) {
-            $app->flashNow('info', "Une erreur est survenu, la création du choix à échoué. => {$e->getMessage()}" . print_r($e, true));
+            $app->flashNow('info', "Une erreur est survenu, la création du choix à échoué. => {$e->getMessage()}");
             $app->render('header.php', array());
             $app->render('form.php', array(
                 "form" => $form

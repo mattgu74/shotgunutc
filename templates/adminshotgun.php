@@ -29,7 +29,7 @@
         </thead>
         <?php foreach($shotgun->getChoices() as $choice) { ?>
             <tr>
-                <td><?php echo $choice->name; ?><?php print_r($choice); ?></td>
+                <td><?php echo $choice->name; ?></td>
                 <td><?php echo $choice->priceC/100; ?> €</td>
                 <td><?php echo $choice->priceNC/100; ?> €</td>
                 <td><?php echo $choice->getNbPlace('V'); ?></td>
