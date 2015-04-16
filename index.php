@@ -38,6 +38,7 @@ function checkRight($payutcClient, $user, $app, $fun_check, $fun_id) {
         }
     } else {
         $fundations = $payutcClient->getFundations(array("user"=> $user, "app" => $app));
+        print_r($fundations);
         foreach($fundations as $fundation) {
             if($fundation['fun_id'] == $fun_id) {
                 return true;
