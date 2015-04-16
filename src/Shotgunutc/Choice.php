@@ -76,7 +76,6 @@ class Choice {
                    ->where('fk_desc_id = :desc_id')
                    ->setParameter('desc_id', $this->descId);
                 $rr = $qbr->execute()->fetch();
-                print_r($r); print_r($rr);
                 return min($this->stock - $r["total"], $descr->quota - $rr["total"]);
                 break;
             case 'V':
