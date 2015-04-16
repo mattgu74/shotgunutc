@@ -19,7 +19,8 @@
     <table class="table">
         <thead>
             <th>Nom du choix</th>
-            <th>Prix</th>
+            <th>Prix cotisant</th>
+            <th>Prix non-cotisant</th>
             <th>Place Shotgunnée</th>
             <th>Place en cours de shotgun</th>
             <th>Place Dispo</th>
@@ -29,7 +30,8 @@
         <?php foreach($shotgun->getChoices() as $choice) { ?>
             <tr>
                 <td><?php echo $choice->name; ?></td>
-                <td><?php echo $choice->price/100; ?> €</td>
+                <td><?php echo $choice->priceC/100; ?> €</td>
+                <td><?php echo $choice->priceNC/100; ?> €</td>
                 <td><?php echo $choice->getNbPlace('V'); ?></td>
                 <td><?php echo $choice->getNbPlace('W'); ?></td>
                 <td><?php echo $choice->getNbPlace('A'); ?></td>

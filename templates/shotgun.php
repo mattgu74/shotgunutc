@@ -46,13 +46,15 @@ use \Shotgunutc\Option;
                 <table class="table">
                 <thead>
                     <th>Nom du choix</th>
-                    <th>Prix</th>
+                    <th>Prix Cotisant</th>
+                    <th>Prix Non Cotisant</th>
                     <th></th>
                 </thead>
                 <?php foreach($desc->getChoices() as $choice) { ?>
                     <tr>
                         <td><?php echo $choice->name; ?></td>
-                        <td><?php echo $choice->price/100; ?> €</td>
+                        <td><?php echo $choice->priceC/100; ?> €</td>
+                        <td><?php echo $choice->priceNC/100; ?> €</td>
                         <td>
                         <?php if($has_place) { ?>
                             <a href="" class="btn btn-danger disabled">Tu as déjà une place !</a>
