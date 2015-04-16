@@ -374,6 +374,7 @@ $app->post('/choiceform', function() use($app, $admin) {
                 "prix" => $choice->price,
                 "stock" => $choice->stock,
                 "alcool" => 0,
+                "cotisant" => False,
                 "fun_id" => $desc->payutc_fun_id));
         $choice->update();
     } else {
@@ -388,6 +389,7 @@ $app->post('/choiceform', function() use($app, $admin) {
                 "prix" => $choice->priceC,
                 "stock" => $choice->stock,
                 "alcool" => 0,
+                "cotisant" => False,
                 "fun_id" => $desc->payutc_fun_id));
             if(isset($ret->success)) {
                 $choice->payutc_art_idC = $ret->success;
