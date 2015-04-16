@@ -39,7 +39,8 @@ class Choice {
         $this->table_name = Config::get("db_pref", "shotgun_")."choice";
         $this->descId = $descId;
         $this->name = $name;
-        $this->price;
+        $this->priceC;
+        $this->priceNC;
         $this->stock;
     }
 
@@ -49,7 +50,8 @@ class Choice {
         $form->action = $action;
         $form->submit = $submit;
         $form->addItem(new Field("Nom", "name", $this->name, "Nom du choix"));
-        $form->addItem(new Field("Prix", "price", $this->price, "Prix du choix", "euro"));
+        $form->addItem(new Field("Prix cotisant", "priceC", $this->price, "Prix du choix pour les cotisants BDE", "euro"));
+        $form->addItem(new Field("Prix non cotisant", "priceNC", $this->price, "Prix du choix pour les non cotisants BDE", "euro"));
         $form->addItem(new Field("Stock", "stock", $this->stock, "Nombre de place", "number"));
         return $form;
     }
@@ -99,7 +101,8 @@ class Choice {
         $conn->insert($this->table_name,
             array(
                 "choice_name" => $this->name,
-                "choice_price" => $this->price,
+                "choice_priceC" => $this->priceC,
+                "choice_priceNC" => $this->priceNC,
                 "choice_stock" => $this->stock,
                 "fk_desc_id" => $this->descId,
                 "payutc_art_id" => $this->payutc_art_id
@@ -135,8 +138,10 @@ class Choice {
         $qb->update(Config::get("db_pref", "shotgun_")."choice", 'c')
             ->set('c.choice_name', ':name')
             ->setParameter('name', $this->name)
-            ->set('c.choice_price', ':price')
-            ->setParameter('price', $this->price)
+            ->set('c.choice_priceC', ':priceC')
+            ->setParameter('priceC', $this->priceC)
+            ->set('c.choice_priceNC', ':priceNC')
+            ->setParameter('priceNC', $this->priceNC)
             ->set('c.choice_stock', ':stock')
             ->setParameter('stock', $this->stock);
 
@@ -166,10 +171,6 @@ class Choice {
     public function shotgun($user, $payutcClient) {
         $desc = new Desc();
         $desc->select($this->descId);
-        // Check Cotisation !
-        if($desc->open_non_cotisant == 0 && $user->is_cotisant != 1) {
-            throw new \Exception("Tu n'es pas cotisant BDE-UTC !");
-        }
 
         // Check not yet shotguned
         $opt = Option::getUser($user->login, $this->descId);
@@ -217,6 +218,7 @@ class Choice {
         $opt->user_prenom = $user->prenom;
         $opt->user_nom = $user->nom;
         $opt->user_mail = $user->mail;
+        $opt->user_cotisant = $user->is_cotisant ? 1 : 0;
         $opt->fk_desc_id = $desc->id;
         $opt->fk_choice_id = $this->id;
         $opt->payutc_tra_id = $vente->tra_id;

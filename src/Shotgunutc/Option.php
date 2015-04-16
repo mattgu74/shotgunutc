@@ -34,6 +34,7 @@ class Option {
     public $user_prenom;
     public $user_nom;
     public $user_mail;
+    public $user_cotisant;
     public $fk_desc_id;
     public $fk_choice_id;
     public $payutc_tra_id;
@@ -65,6 +66,7 @@ class Option {
                 "user_prenom" => $this->user_prenom,
                 "user_nom" => $this->user_nom,
                 "user_mail" => $this->user_mail,
+                "user_cotisant" => $this->user_cotisant,
                 "fk_desc_id" => $this->fk_desc_id,
                 "fk_choice_id" => $this->fk_choice_id,
                 "payutc_tra_id" => $this->payutc_tra_id, 
@@ -205,6 +207,7 @@ class Option {
         $this->user_prenom = $data["user_prenom"];
         $this->user_nom = $data["user_nom"];
         $this->user_mail = $data["user_mail"];
+        $this->user_cotisant = $data["user_cotisant"];
         $this->fk_desc_id = $data["fk_desc_id"];
         $this->fk_choice_id = $data["fk_choice_id"];
         $this->payutc_tra_id = $data["payutc_tra_id"];
@@ -212,7 +215,6 @@ class Option {
         $this->date_creation = $data["option_date_creation"];
         $this->date_paiement = $data["option_date_paiement"];
         $this->status = $data["option_status"];
-
         $this->choice_name = $data["choice_name"];
         $this->choice_price = $data["choice_price"];
     }
@@ -227,6 +229,7 @@ class Option {
               `user_prenom` varchar(50) NOT NULL,
               `user_nom` varchar(50) NOT NULL,
               `user_mail` varchar(125) NOT NULL,
+              `user_cotisant` int(1) NOT NULL,
               `fk_desc_id` int(5) NOT NULL,
               `fk_choice_id` int(5) NOT NULL,
               `payutc_tra_id` int(9) NOT NULL,
