@@ -589,11 +589,13 @@ $app->get('/cron', function() use($app, $payutcClient, $admin) {
 
 $app->get('/callback', function() use($app, $payutcClient, $admin) {
     $payutcClient = getPayutcClient("WEBSALE");
-    if(!isset($_GET["tra_id"])) {
-        $opt = new Option();
-        $opt->select_tra_id($_GET["tra_id"]);
-        $desc = new Desc($opt->fk_desc_id);
-        $opt->checkStatus($payutcClient, $desc->payutc_fun_id);
+    $options = Option::getAll();
+    foreach($options as $opt) {
+        if($opt->status == 'W') {
+            $desc = new Desc($opt->fk_desc_id);
+            $funId = $desc->payutc_fun_id;
+            $opt->checkStatus($payutcClient, $funId);
+        }
     }
     $app->redirect('index');
 });
