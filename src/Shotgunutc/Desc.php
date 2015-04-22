@@ -181,11 +181,9 @@ class Desc {
         header("Pragma: no-cache");
         header("Expires: 0");
 
-        $gingerClient = new GingerClient(Config::get('ginger_key'), Config::get('ginger_server'));
         foreach($opts as $opt) {
             if($opt->status == 'V') {
-                $user = $gingerClient->getUser($opt->user_login);
-                echo $opt->id . "," . $opt->user_login . "," . $opt->user_prenom . "," . $opt->user_nom . "," . $opt->user_mail . "," . $opt->choice_name . "," . $opt->choice_price . "," . $opt->date_creation . "," . $user->badge_uid . "\n";
+                echo $opt->id . "," . $opt->user_login . "," . $opt->user_prenom . "," . $opt->user_nom . "," . $opt->user_mail . "," . $opt->choice_name . "," . $opt->choice_price . "," . $opt->date_creation . "\n";
             }
         }
         exit();
