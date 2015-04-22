@@ -154,6 +154,18 @@ class Option {
         $this->bind($data);
     }
 
+    /*
+        Select a specific tra_ID from database
+    */
+    public function select_tra_id($tra_id) {
+        $qb = self::getQbBase();
+        $qb->andWhere('o.payutc_tra_id = :tra_id')
+            ->setParameter('tra_id', $id);
+
+        $data = $qb->execute()->fetch();
+        $this->bind($data);
+    }
+
     public static function getUser($login, $descId) {
         $qb = self::getQbBase();
         $qb->where('o.fk_desc_id = :desc_id')
