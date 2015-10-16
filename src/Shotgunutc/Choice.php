@@ -67,7 +67,7 @@ class Choice {
            ->setParameter('desc_id', $this->descId);
         switch($t) {
             case 'A':
-                $qb->andWhere("option_status = 'V' or option_status = 'W'");
+                $qb->andWhere("option_status = 'V' or option_status = 'W' or option_status = 'A'");
                 $r = $qb->execute()->fetch();
                 $descr = new Desc($this->descId);
                 $qbr = Db::createQueryBuilder();
